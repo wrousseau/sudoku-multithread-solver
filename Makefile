@@ -7,7 +7,7 @@
 # Simon Manchel et Woody Rousseau
 
 # -- Liste des Fichiers ---------
-FILE = main.c iostream.c calcul.c mem_work.c
+FILE = main.c streaminout.c calcul.c mem_work.c
 
 # -- Chemins --------------------
 SRC_PATH = src
