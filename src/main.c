@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "../include/structures.h"
-#include "../include/mem_work.h"
+#include "structures.h"
+#include "mem_work.h"
 
 int main (int argc, char **argv)
 {

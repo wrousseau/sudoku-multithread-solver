@@ -1,12 +1,15 @@
+#include <stdlib.h>
+#include <stdio.h>
+
 #include "structures.h"
 
 
-void** createGrid(unsigned char n, block*** gridAdress )
+block** createGrid(unsigned char n, block*** gridAdress )
 {
-	int i, j;
-	void** grid;
+	int i;
+	block** grid;
 	
-	if (grid = (block**) malloc( n*sizeof(block*)) == NULL)
+	if ( (grid = (block**) malloc( n*sizeof(block*))) == NULL)
 	{
 		perror("Problème de Malloc :");
 		exit( EXIT_FAILURE );
@@ -14,7 +17,7 @@ void** createGrid(unsigned char n, block*** gridAdress )
 	
 	for(i = 0 ; i < n ; i++)
 	{
-		if (grid[i] = (block*) malloc( n*sizeof(block)) == NULL)
+		if ((grid[i] = (block*) malloc( n*sizeof(block))) == NULL)
 		{
 			perror("Problème de Malloc :");
 			exit( EXIT_FAILURE );
