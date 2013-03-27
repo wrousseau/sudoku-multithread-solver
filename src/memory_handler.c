@@ -4,12 +4,12 @@
 #include "structures.h"
 
 
-block** createGrid(unsigned char n, block*** gridAdress)
+unsigned char** createGrid(unsigned char n, unsigned char*** gridAdress)
 {
 	int i;
-	block** grid;
+	unsigned char** grid;
 	
-	if ( ( grid = (block**) malloc(n*sizeof(block*))) == NULL )
+	if ( ( grid = (unsigned char**) malloc(n*sizeof(unsigned char*))) == NULL )
 	{
 		perror("Erreur de Mémoire (Malloc)");
 		exit( EXIT_FAILURE );
@@ -17,7 +17,7 @@ block** createGrid(unsigned char n, block*** gridAdress)
 	
 	for(i = 0 ; i < n ; i++)
 	{
-		if ( ( grid[i] = (block*) malloc(n*sizeof(block))) == NULL )
+		if ( ( grid[i] = (unsigned char*) malloc(n*sizeof(unsigned char))) == NULL )
 		{
 			perror("Erreur de Mémoire (Malloc)");
 			exit( EXIT_FAILURE );
@@ -30,7 +30,7 @@ block** createGrid(unsigned char n, block*** gridAdress)
 }
 ////////////////////////////////////
 
-void deleteGrid(unsigned char n, block** grid)
+void deleteGrid(unsigned char n, unsigned char** grid)
 {
 	int i;
 	

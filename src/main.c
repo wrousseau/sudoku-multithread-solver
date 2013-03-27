@@ -7,7 +7,7 @@
 
 int main (int argc, char **argv)
 {	
-	block** grid; //déclaration du double pointeur de la matrice représentant la grille de jeu
+	unsigned char** grid; //déclaration du double pointeur de la matrice représentant la grille de jeu
 	unsigned char blocksPerSquare;
 	if(argc < 2)
 	{
