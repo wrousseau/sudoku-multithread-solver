@@ -9,15 +9,15 @@ int main (int argc, char **argv)
 {	
 	unsigned char** grid; //déclaration du double pointeur de la matrice représentant la grille de jeu
 	unsigned char blocksPerSquare;
-	if(argc < 2)
+	char defaultFilePath[] = "sudoku_in.txt";
+	char *filePath = defaultFilePath;
+	if(argc > 1)
 	{
-		blocksPerSquare = readDimensions("sudoku_in.txt");
+		filePath = argv[1];
 	}
-	else
-	{
-		blocksPerSquare = readDimensions(argv[1]);
-	}
+	blocksPerSquare = readDimensions(filePath);
 	createGrid(blocksPerSquare, &grid );
+	readGrid(filePath, grid, blocksPerSquare);
 	
 	exit( EXIT_SUCCESS );
 }
