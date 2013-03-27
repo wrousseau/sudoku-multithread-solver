@@ -28,3 +28,17 @@ block** createGrid(unsigned char n, block*** gridAdress )
 	
 	return grid;
 }
+////////////////////////////////////
+
+void deleteGrid(unsigned char n, block** grid)
+{
+	int i;
+	
+	for(i = 0; i < n ; i++)
+	{
+		free(grid[i]);
+	}
+	free(grid);
+	
+	return;
+}
