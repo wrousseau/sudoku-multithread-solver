@@ -1,8 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "structures.h"
-#include "mem_work.h"
-#include "streaminout.h"
+#include "memory_handler.h"
+#include "inputoutput_handler.h"
+#include "solver.h"
 
 int main (int argc, char **argv)
 {	
@@ -18,5 +19,5 @@ int main (int argc, char **argv)
 	}
 	createGrid(blocksPerSquare, &grid );
 	
-	exit(EXIT_SUCCESS);
+	exit( EXIT_SUCCESS );
 }

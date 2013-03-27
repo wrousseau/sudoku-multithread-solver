@@ -1,5 +1,5 @@
-#ifndef MEM_WORK
-#define MEM_WORK
+#ifndef D_MEMORY_HANDLER
+#define D_MEMORY_HANDLER
 
 
 

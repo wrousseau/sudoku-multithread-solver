@@ -4,27 +4,27 @@
 #include "structures.h"
 
 
-block** createGrid(unsigned char n, block*** gridAdress )
+block** createGrid(unsigned char n, block*** gridAdress)
 {
 	int i;
 	block** grid;
 	
-	if ( (grid = (block**) malloc( n*sizeof(block*))) == NULL)
+	if ( ( grid = (block**) malloc(n*sizeof(block*))) == NULL )
 	{
-		perror("Problème de Malloc :");
+		perror("Erreur de Mémoire (Malloc)");
 		exit( EXIT_FAILURE );
 	}
 	
 	for(i = 0 ; i < n ; i++)
 	{
-		if ((grid[i] = (block*) malloc( n*sizeof(block))) == NULL)
+		if ( ( grid[i] = (block*) malloc(n*sizeof(block))) == NULL )
 		{
-			perror("Problème de Malloc :");
+			perror("Erreur de Mémoire (Malloc)");
 			exit( EXIT_FAILURE );
 		}
 	}
 	
-	*gridAdress = grid;//
+	*gridAdress = grid;
 	
 	return grid;
 }
