@@ -9,5 +9,5 @@ int main (int argc, char **argv)
 	int blockPerSquare = 9;
 	createGrid(blockPerSquare, &grid );
 	
-	exit(EXIT_SUCCESS);
+	exit( EXIT_SUCCESS );
 }
