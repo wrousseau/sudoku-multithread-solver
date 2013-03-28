@@ -39,25 +39,28 @@ void readGrid(char* filePath, unsigned char** grid, unsigned char n)
 	int tmp, i, j, k, p, size = 255*4;
 	char buf[size];
 	char minibuf[10];
-	fgets(buf, size, file);//On passe la première ligne
-	for(i = 0 ; i < n ; i++)//lecture d'une ligne
+	fgets(buf, size, file); //On passe la première ligne
+	//lecture des lignes
+	for(i = 0 ; i < n ; i++) 
 	{
 		j = 0;
 		k = 0;
 		p = 0;
 		fgets(buf, size, file);
 		buf[strlen(buf)-1] = '\0'; //Pour supprimer le \n de fgets
-		while(buf[p] != '\0') //lecture des colonnes de la ligne (des chiffres)
+		
+		//lecture des colonnes de la ligne (des chiffres)
+		while(buf[p] != '\0') 
 		{
 			
-			if(buf[p] != ' ')//Tant qu'il y a des chiffres on est sur un nombre, on le récupère dans un 2° buffer
+			if(buf[p] != ' ') //Tant qu'il y a des chiffres on est sur un nombre, on le récupère dans un 2° buffer
 			{
 				minibuf[k] = buf[p];
 				k++;
 			}
 			else // On a fini de lire un nombre, on le transforme en unsigned char et on le stocke dans notre matrice
 			{
-				minibuf[k] = '\0';//on définit la fin de string
+				minibuf[k] = '\0'; //on définit la fin de string
 				tmp = atoi(minibuf);
 				if(tmp > 255)
 				{
@@ -70,7 +73,7 @@ void readGrid(char* filePath, unsigned char** grid, unsigned char n)
 			}
 		p++;
 		}
-		//on récupère le dernier nombre avant le \0
+		//on récupère le dernier nombre avant le \0 de la ligne
 		minibuf[k] = '\0';
 		tmp = atoi(minibuf);
 		if(tmp > 255)
