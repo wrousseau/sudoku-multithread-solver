@@ -73,20 +73,55 @@ void readGrid(char* filePath, unsigned char** grid, unsigned char n)
 			}
 		p++;
 		}
-		//on récupère le dernier nombre avant le \0 de la ligne
-		minibuf[k] = '\0';
-		tmp = atoi(minibuf);
-		if(tmp > 255)
+		//on récupère le dernier nombre avant le \0 de la ligne si ce dernier est collé au dernier nombre
+		if(j == n-1)
 		{
-			printf("Erreur : un élément est supérieur à 255 dans la table fournie\n");
-			exit( EXIT_FAILURE );
+			minibuf[k] = '\0';
+			tmp = atoi(minibuf);
+			if(tmp > 255)
+			{
+				printf("Erreur : un élément est supérieur à 255 dans la table fournie\n");
+				exit( EXIT_FAILURE );
+			}
+			grid[i][j] = (unsigned char) tmp;
 		}
-		grid[i][j] = (unsigned char) tmp;
 	}
 	
 	fclose(file);
 	
 	return;	
+}
+
+
+///////////////////////////////////////////////////:
+
+void writeGrid(char* resultPath, unsigned char** grid, unsigned char n)
+{
+	int i, j;
+	FILE* file = fopen(resultPath, "w");
+	if(file == NULL)
+	{
+		perror("Problème lors de l'ouverture en écriture du fichier de sortie ");
+		exit( EXIT_FAILURE );
+	}
+	fprintf(file, "%d\n", n); //on imprime la taille du sudoku
+	
+	for(i = 0 ; i < n ; i++)
+	{
+		for( j = 0 ; j < n ; j++)
+		{
+			fprintf(file, "%d", grid[i][j]);
+			// Si on est pas en fin de ligne, on rajoute un espace entre 2 nombres
+			if(j < n-1)
+			{
+				fputc( ' ', file);
+			}
+		}
+		fputc( '\n', file); // retour à la ligne entre chaque ligne
+	}
+	fclose(file);
+	
+	return;
 }
 
 
