@@ -11,6 +11,7 @@ int main (int argc, char **argv)
 	unsigned char blocksPerSquare;
 	char defaultFilePath[] = "sudoku_in.txt", defaultResultPath[] = "sudoku_out.txt";
 	char *filePath = defaultFilePath, *resultPath = defaultResultPath;
+	Sudoku* sudoku;
 	if(argc > 1)
 	{
 		filePath = argv[1];
@@ -20,11 +21,11 @@ int main (int argc, char **argv)
 		resultPath = argv[2];
 	}
 	blocksPerSquare = readDimensions(filePath);
-	createGrid(blocksPerSquare, &grid );
+	createGrid(blocksPerSquare, &grid);
 	readGrid(filePath, grid, blocksPerSquare);
-	
+	initSudoku( &sudoku, grid, blocksPerSquare);
 	
 	writeGrid(resultPath, grid, blocksPerSquare);
-	deleteGrid( blockPerSquare, grid);
+	deleteSudoku(sudoku);
 	exit( EXIT_SUCCESS );
 }

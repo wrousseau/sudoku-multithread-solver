@@ -5,7 +5,8 @@
 
 unsigned char** createGrid(unsigned char n, unsigned char*** gridAdress );//n : nombre de lignes (ou de colonnes selon le point de vue). gridAdress : Adresse du double pointeur de la grille
 
-void deleteGrid(unsigned char n, unsigned char** grid);
+void deleteSudoku(Sudoku* sudoku);
+void initSudoku( Sudoku** sudokuAdress, unsigned char** grid, unsigned char npar);
 
 
 #endif

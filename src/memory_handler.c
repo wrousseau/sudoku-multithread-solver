@@ -30,15 +30,54 @@ unsigned char** createGrid(unsigned char n, unsigned char*** gridAdress)
 }
 ////////////////////////////////////
 
-void deleteGrid(unsigned char n, unsigned char** grid)
+void deleteSudoku(Sudoku* sudoku)
 {
 	int i;
-	
-	for(i = 0; i < n ; i++)
+	for(i = 0; i < sudoku->n ; i++)
 	{
-		free(grid[i]);
+		free(sudoku->grid[i]);
 	}
-	free(grid);
-	
+	free(sudoku->grid);
+	free(sudoku);
 	return;
 }
+
+//////////////////////////////////////
+
+void initSudoku( Sudoku** sudokuAdress, unsigned char** grid, unsigned char npar)
+{
+	
+	Sudoku* sudoku = malloc(sizeof(Sudoku));
+	if(sudoku == NULL)
+	{
+		perror("Erreur de Mémoire (Malloc)");
+		exit( EXIT_FAILURE );
+	}
+	*sudokuAdress = sudoku;
+	
+	//Calcul de emptyBlocks
+	int i, j;
+	sudoku->emptyBlocks = 0;
+	sudoku->n = npar;
+	sudoku->grid = grid;
+	
+	for(i = 0 ; i < sudoku->n ; i++)
+	{
+		for(j = 0 ; j < sudoku->n ; j++)
+		{
+			if(grid[i][j] == 0)
+			{
+				sudoku->emptyBlocks++;
+			}
+		}
+	}
+	return;
+}
+
+
+
+
+
+
+
+
