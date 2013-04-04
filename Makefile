@@ -20,8 +20,11 @@ CC = gcc
 
 # -- Flags ----------------------
 C_INC_FLAGS = -I$(INC_PATH)
-C_CC_FLAGS = -ansi -posix -pedantic -Wall -std=c99 
+C_CC_FLAGS = -ansi -posix -pedantic -Wall -std=c99
 CFLAGS = $(C_CC_FLAGS) $(C_INC_FLAGS) $(LIB_INC_PATH)
+
+# -- Librairies -----------------
+LIBS = -lm -pthread
 
 # -- Exécutable -----------------
 PRODUCT = sudoku
@@ -33,11 +36,11 @@ OBJ = $(addprefix ${OBJ_PATH}/, $(addsuffix .o, $(basename $(FILE))))
 # -- Règles principales ---------
 $(OBJ_PATH)/%.o: $(SRC_PATH)/%.c
 	@mkdir -p $(OBJ_PATH)
-	$(CC) -g $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(EXE_PATH)/$(PRODUCT): $(OBJ)
 	@mkdir -p $(EXE_PATH)
-	$(CC) -g -o $@ $^ $(INC) $(LIB)
+	$(CC) -o $@ $^ $(INC) $(LIBS)
 	@echo "Compilation Effectuée. Entrer 'make run' pour lancer le programme."
 
 # -- Autres Règles --------------

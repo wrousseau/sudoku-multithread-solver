@@ -56,7 +56,7 @@ void readGrid ( char* filePath , unsigned char** grid , unsigned char n )
 
 		if (buf[strlen(buf) - 1] == '\n') 
 		{
-  			buf[strlen(buf) - 1] == '\0';
+  			buf[strlen(buf) - 1] = '\0';
 		}
 
 		// Lecture des colonnes de la ligne
