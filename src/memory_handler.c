@@ -126,12 +126,73 @@ void initSubGrid( subGrid* par , int i, int n )
 	par -> successLaunch = 0;
 	par -> failLaunch = 0;
 	par -> numberLaunch = 0;
+	if( (par -> s = (Solution**) malloc(widthSubSquare * sizeof (Solution*)) ) == NULL) // création de la matrice Solution en local
+	{
+		perror("Problème de Malloc ");
+		exit ( EXIT_FAILURE );
+	} 
+	for (int k = 0 ; k < widthSubSquare ; k++)
+	{
+		if( (par -> s[k] = (Solution*) malloc(widthSubSquare * sizeof (Solution)) ) == NULL)
+		{
+			perror("Problème de Malloc ");
+			exit ( EXIT_FAILURE );
+		} 
+	}
 
 	par -> emptyBlocks = sudoku -> emptyBlocks;
 	//printf("i : %d  ||  n : %d\n", i, n);
-	printf("x : %d  ||  y : %d\n", par->x, par->y);
+	//printf("x : %d  ||  y : %d\n", par->x, par->y);
 
+	for( int m = 0 ; m < widthSubSquare ; m++)
+	{
+		for( int p = 0 ; p < widthSubSquare ; p++)
+		{	
+			unsigned char block = sudoku -> grid[par->x * widthSubSquare + m][par->y * widthSubSquare + p];
 
+			if(block != 0) // si la case en question est définie, le seul choix possible s'impose
+			{
+				par -> s[m][p].N_sol = 1;
+				for( int k = 0 ; k < n ; k++)
+				{
+					par -> s[m][p].choices[k] = 0;
+				}
+				par -> s[m][p].choices[block - 1] = 1;//exemple : si il y a un 2 dans la case, la 2° case de choices sera à 1, les autres à 0
+			}
+			else // sinon on cherche les possibilités
+			{
+				for( int k = 0 ; k < n ; k++)
+				{
+					par -> s[m][p].choices[k] = 1; //pour le moment tous les choix sont possibles jusqu'à n
+				}
+				par -> s[m][p].N_sol = n;
+
+				for( int k = 0 ; k < n ; k++)//on procède au tests ...
+				{
+					unsigned char tmp;
+					tmp = sudoku -> grid[par->x * widthSubSquare + m][k];
+					if( tmp !=0 && par -> s[m][p].choices[tmp-1] != 0)//... Horizontal ...
+					{
+						par -> s[m][p].choices[tmp-1] = 0;
+						par -> s[m][p].N_sol--;
+					}
+					tmp = sudoku -> grid[k][par->y * widthSubSquare + p];
+					if( tmp !=0 && par -> s[m][p].choices[tmp-1] != 0)//... Vertical ...
+					{
+						par -> s[m][p].choices[tmp-1] = 0;
+						par -> s[m][p].N_sol--;
+					}
+					tmp = sudoku -> grid[par->x * widthSubSquare + k/widthSubSquare][par->y * widthSubSquare + k%widthSubSquare];
+					if(tmp !=0 && par -> s[m][p].choices[tmp-1] != 0)//... Dans le sous carré
+					{
+						par -> s[m][p].choices[tmp-1] = 0;
+						par -> s[m][p].N_sol--;
+					}
+
+				}
+			}
+		}
+	}
 
 	return;
 }
