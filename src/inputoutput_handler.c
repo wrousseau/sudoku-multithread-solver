@@ -74,7 +74,7 @@ void readGrid ( char* filePath , unsigned char** grid , unsigned char n )
 			tmp = atoi( number );
 			if(tmp > 255)
 			{
-				printf("Erreur : un élément est supérieur à 255 dans la table fournie\n");
+				perror("Un élément est supérieur à 255 dans la table fournie");
 				exit( EXIT_FAILURE );
 			}
 			grid[i][j] = ( unsigned char ) tmp;
@@ -94,24 +94,21 @@ void writeGrid(char* resultPath, unsigned char** grid, unsigned char n)
 	FILE* file = fopen(resultPath, "w");
 	if(file == NULL)
 	{
-		perror("Problème lors de l'ouverture en écriture du fichier de sortie ");
+		perror( "Problème lors de l'ouverture en écriture du fichier de sortie." );
 		exit( EXIT_FAILURE );
 	}
 	fprintf(file, "%d\n", n); //on imprime la taille du sudoku
 	
 	for(i = 0 ; i < n ; i++)
 	{
-		for( j = 0 ; j < n ; j++)
+		for( j = 0 ; j < n-1 ; j++)
 		{
-			fprintf(file, "%d", grid[i][j]);
+			fprintf(file, "%d ", grid[i][j]);
 			// Si on est pas en fin de ligne, on rajoute un espace entre 2 nombres
-			if(j < n-1)
-			{
-				fputc( ' ', file);
-			}
 		}
-		fputc( '\n', file); // retour à la ligne entre chaque ligne
+		fprintf(file, "%d\n", grid[i][j]);
 	}
+	
 	fclose(file);
 	
 	return;
