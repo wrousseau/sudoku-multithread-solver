@@ -8,6 +8,7 @@ unsigned char** createGrid(unsigned char n, unsigned char*** gridAdress );//n : 
 void deleteSudoku(Sudoku* sudoku);
 void initSudoku( Sudoku** sudokuAdress, unsigned char** grid, unsigned char npar);
 void launchThreads( pthread_t** threadsAdress, int n);
+void initSubGrid( subGrid* par , int i, int n );
 
 
 #endif

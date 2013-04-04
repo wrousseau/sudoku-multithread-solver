@@ -6,14 +6,15 @@
 #include "inputoutput_handler.h"
 #include "solver.h"
 
+Sudoku* sudoku;
+
 int main (int argc, char **argv)
 {	
 	unsigned char** grid; //déclaration du double pointeur de la matrice représentant la grille de jeu
 	unsigned char blocksPerSquare;
 	char defaultFilePath[] = "sudoku_in.txt", defaultResultPath[] = "sudoku_out.txt";
 	char *filePath = defaultFilePath, *resultPath = defaultResultPath;
-	Sudoku* sudoku;
-	pthread_t* threads=NULL;
+	subGrid* threads=NULL;
 	
 	if(argc > 1)
 	{
