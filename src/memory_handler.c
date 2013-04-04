@@ -1,7 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <math.h>
 
 #include "structures.h"
+#include "solver.h"
 
 
 unsigned char** createGrid(unsigned char n, unsigned char*** gridAdress)
@@ -75,7 +79,39 @@ void initSudoku( Sudoku** sudokuAdress, unsigned char** grid, unsigned char npar
 }
 
 
+void launchThreads( pthread_t** threadsAdress, int n)
+{
+	int widthSubSquare;
+	void* tab = NULL;//à Voir comment on gère les arguments
 
+	widthSubSquare = (int) sqrt( n );
+
+	(*threadsAdress) = malloc( n * sizeof( pthread_t ) );
+	if(*threadsAdress == NULL)
+	{
+		perror("Erreur de Malloc ");
+		exit( EXIT_FAILURE );
+	}
+
+	for( int i = 0 ; i < n ; i++ )
+	{
+		if(pthread_create( &((*threadsAdress)[i]) , NULL, threadStart , tab) != 0)
+        {
+                perror("Erreur dans pthread_create");
+                exit( EXIT_FAILURE );
+        }
+
+	}
+	for( int i = 0 ; i < n ; i++ )
+	{
+		if(pthread_join( (*threadsAdress)[i], NULL ) != 0)
+        {
+                perror("Erreur dans pthread_join");
+                exit( EXIT_FAILURE );
+        }
+	}printf("test\n");
+    return;
+}
 
 
 

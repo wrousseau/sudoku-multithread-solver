@@ -14,7 +14,7 @@ typedef struct{
 
 typedef struct{
 	int N;
-	Solution** s
+	Solution** s;
 }subGrid;
 
 
