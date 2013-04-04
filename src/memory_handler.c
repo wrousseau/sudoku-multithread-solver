@@ -26,7 +26,6 @@ void createGrid ( unsigned char n , unsigned char*** gridAdress )
 		}
 	}	
 }
-////////////////////////////////////
 
 void deleteSudoku(Sudoku* sudoku)
 {
