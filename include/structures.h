@@ -13,7 +13,7 @@ typedef struct{
 
 typedef struct{
 	int N_sol;
-	unsigned char *p;
+	unsigned char choices[255];
 }Solution;
 
 typedef struct{
