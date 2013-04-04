@@ -33,11 +33,11 @@ OBJ = $(addprefix ${OBJ_PATH}/, $(addsuffix .o, $(basename $(FILE))))
 # -- Règles principales ---------
 $(OBJ_PATH)/%.o: $(SRC_PATH)/%.c
 	@mkdir -p $(OBJ_PATH)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) -g $(CFLAGS) -c $< -o $@
 
 $(EXE_PATH)/$(PRODUCT): $(OBJ)
 	@mkdir -p $(EXE_PATH)
-	$(CC) -o $@ $^ $(INC) $(LIB)
+	$(CC) -g -o $@ $^ $(INC) $(LIB)
 	@echo "Compilation Effectuée. Entrer 'make run' pour lancer le programme."
 
 # -- Autres Règles --------------

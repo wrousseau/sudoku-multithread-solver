@@ -4,29 +4,22 @@
 #include "structures.h"
 
 
-unsigned char** createGrid(unsigned char n, unsigned char*** gridAdress)
+void createGrid ( unsigned char n , unsigned char*** gridAdress )
 {
-	int i;
-	unsigned char** grid;
-	
-	if ( ( grid = (unsigned char**) malloc(n*sizeof(unsigned char*))) == NULL )
+	if ( ( *gridAdress = ( unsigned char** ) malloc( n*sizeof( unsigned char* ) ) ) == NULL )
 	{
-		perror("Erreur de Mémoire (Malloc)");
+		perror( "Erreur de Mémoire (Malloc)" );
 		exit( EXIT_FAILURE );
 	}
 	
-	for(i = 0 ; i < n ; i++)
+	for( int i = 0 ; i < n ; i++)
 	{
-		if ( ( grid[i] = (unsigned char*) malloc(n*sizeof(unsigned char))) == NULL )
+		if ( ( (*gridAdress)[i] = ( unsigned char* ) malloc( n*sizeof( unsigned char ) ) ) == NULL )
 		{
-			perror("Erreur de Mémoire (Malloc)");
-			exit( EXIT_FAILURE );
+			perror ( "Erreur de Mémoire (Malloc)" ) ;
+			exit ( EXIT_FAILURE );
 		}
-	}
-	
-	*gridAdress = grid;
-	
-	return grid;
+	}	
 }
 ////////////////////////////////////
 
@@ -39,7 +32,6 @@ void deleteSudoku(Sudoku* sudoku)
 	}
 	free(sudoku->grid);
 	free(sudoku);
-	return;
 }
 
 //////////////////////////////////////

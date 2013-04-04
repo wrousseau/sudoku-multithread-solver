@@ -7,10 +7,10 @@
 
 int main (int argc, char **argv)
 {	
-	unsigned char** grid; //déclaration du double pointeur de la matrice représentant la grille de jeu
+	unsigned char** grid; // Déclaration du double pointeur de la matrice représentant la grille de jeu
+	
 	unsigned char blocksPerSquare;
-	char defaultFilePath[] = "sudoku_in.txt", defaultResultPath[] = "sudoku_out.txt";
-	char *filePath = defaultFilePath, *resultPath = defaultResultPath;
+	char *filePath = "sudoku_in.txt", *resultPath = "sudoku_out.txt";
 	Sudoku* sudoku;
 	if(argc > 1)
 	{
@@ -20,6 +20,7 @@ int main (int argc, char **argv)
 	{
 		resultPath = argv[2];
 	}
+
 	blocksPerSquare = readDimensions(filePath);
 	createGrid(blocksPerSquare, &grid);
 	readGrid(filePath, grid, blocksPerSquare);
@@ -27,5 +28,6 @@ int main (int argc, char **argv)
 	
 	writeGrid(resultPath, grid, blocksPerSquare);
 	deleteSudoku(sudoku);
+	
 	exit( EXIT_SUCCESS );
 }
