@@ -11,6 +11,7 @@ extern Sudoku* sudoku;
 
 void *threadStart(void* arg)
 {
+	int iDebug = 7;
 	parThread* tab = arg;
 	int n = tab->n, i = tab->i;
 	unsigned char* result;
@@ -20,7 +21,7 @@ void *threadStart(void* arg)
 	int widthSubSquare;
 	widthSubSquare = (int) sqrt( n );
 
-	while( sudoku -> emptyBlocks != 0)
+	while( sudoku -> emptyBlocks != 0 && i == iDebug)
 	{//printf("grid :%d   global:%d\n",tab->subGrid->emptyBlocks, sudoku->emptyBlocks);
 		
 		
@@ -28,8 +29,9 @@ void *threadStart(void* arg)
 		tab->subGrid->numberLaunch++;
 		
 		fillGrid(result, tab);//remplit la grid si besoin est
-		
-		if(i == 0) //DEBUG
+		usleep(1000000);
+		/******* DEBUG ne pas supprimer*****/
+		if(i == iDebug) 
 		{ 
 			for(int p = 0; p < widthSubSquare; p++)
 			{
@@ -45,6 +47,7 @@ void *threadStart(void* arg)
 			printf("grid :%d   global:%d\n",tab->subGrid->emptyBlocks, sudoku->emptyBlocks);
 			//exit(0);
 		}
+		/********* ---- **********/
 
 		tab->subGrid->emptyBlocks = sudoku->emptyBlocks;
 		free(result);
@@ -53,7 +56,7 @@ void *threadStart(void* arg)
 			usleep(1000);
 		}
 		
-		writeGrid("sudoku_out.txt", sudoku->grid, 9);
+		//writeGrid("sudoku_out.txt", sudoku->grid, 9);
 	}
 
 	return NULL;
@@ -77,6 +80,7 @@ unsigned char* searchChoices(subGrid* par, int n, int widthSubSquare, bool init)
 		{	//printf("pute  m:%d  p:%d\n",m,p);
 			//On analyse chaque case du sous carré
 			tmp = checkBlock( &( par->s[m][p] ), par, par->y * widthSubSquare + m, par->x * widthSubSquare + p, init);
+
 			if(tmp != 0) //si on trouve quelque chose on le rajoute dans result
 			{
 				result[3*resultPointer] = tmp; // la valeur
@@ -102,6 +106,7 @@ void fillGrid(unsigned char* result, parThread* tab)
 		sudoku->locked = true;
 		while(result[3*k] != 0) //on écrit dans la grille tout ce qu'on a trouvé
 		{
+			printf("%d\n", (int) result[3*k] );
 			sudoku->grid[ result[3*k + 1] ][ result[3*k + 2] ] = result[3*k];
 			sudoku->emptyBlocks--;
 			k++;
@@ -153,7 +158,7 @@ unsigned char checkBlock(Solution *s, subGrid* thread, unsigned char i, unsigned
 
 			if(result == 0)
 			{
-				result = getSingletonChoices(s, thread, i, j);
+				//result = getSingletonChoices(s, thread, i, j);
 			}
 			return result;
 		}
@@ -192,8 +197,8 @@ unsigned char getNaiveChoices(Solution *s, subGrid* thread, unsigned char i, uns
 			s->choices[tmp-1] = 0;
 			s->N_sol--;
 			result = tmp;
-		}
-	}
+		}printf("%d ",(int) result );
+	}printf("     %d&%d\n", (int) result, (int) s->N_sol);
 	if(s->N_sol == 1)
 	{
 		return result;
@@ -229,23 +234,33 @@ unsigned char getSingletonChoices(Solution* s, subGrid* thread, unsigned char i,
 	//unsigned char result;
 	for( int k = 0; k < widthSubSquare ; k++) //on repère si un nombre n'a qu'une seule case possible dans le carré
 	{
-		for( int l = 0 ; k < widthSubSquare ; k++)
+		for( int l = 0 ; l < widthSubSquare ; l++)
 		{
 			if(thread->s[k][l].N_sol != 1)
 			{
 				for( int m = 0 ; m < n ; m++)
-				{
-					tmp[m] = tmp[m] ^ thread->s[k][l].choices[m];
-				}
+				{printf("%d ", tmp[m]);
+					tmp[m] = tmp[m] + thread->s[k][l].choices[m];
+				}printf("\n");
 			}				
 		}
 	}
+	for( int k = 0 ; k < n ; k++) // on vérifie s'il y a un singleton dans le sous carré
+	{printf("%d ", (int) tmp[k]);}printf("     :%d%d   :%d\n\n", thread->x, thread->y, s->N_sol);
 
 	for( int k = 0 ; k < n ; k++) // on vérifie s'il y a un singleton dans le sous carré
 	{
-		if(tmp[k] == 1 && s->choices[k] == 1)
+		if(tmp[k] == 1 && s->choices[k] == 1) 
+		//si on en trouve un qui correspond au block analysé, on envoie la valeur (+1 car le tableau commence à 0)
 		{
-			return k+1; //si on en trouve un qui correspond au block analysé, on envoie la valeur (+1 car le tableau commence à 0)
+			s->N_sol = 1;
+			for( int l = 0 ; l < n ; l++)
+			{
+				s->choices[l] = 0;
+			}
+			s->choices[k] = 1;
+
+			return k+1; 
 		}
 	}
 
