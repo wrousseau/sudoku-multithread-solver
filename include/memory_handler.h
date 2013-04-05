@@ -11,4 +11,5 @@ void launchThreads( subGrid** threadsAdress, int n);
 void initSubGrid( subGrid* par , int i, int n );
 
 
+
 #endif

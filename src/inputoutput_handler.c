@@ -1,6 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>	
+#include <string.h>
+#include "structures.h"
+
+extern Sudoku* sudoku;
 
 unsigned char readDimensions( char *filePath )
 {
@@ -117,7 +120,19 @@ void writeGrid(char* resultPath, unsigned char** grid, unsigned char n)
 
 
 
-
+void printGrid()
+{
+	printf("GRID empty:%d\n", sudoku->emptyBlocks);
+	for( int i = 0 ; i < sudoku->n ; i++)
+	{
+		for( int j = 0 ; j < sudoku->n ; j++)
+		{
+			printf("%d ",sudoku->grid[i][j]);
+		}
+		printf("\n");
+	}printf("\n");
+	return;
+}
 
 
 
