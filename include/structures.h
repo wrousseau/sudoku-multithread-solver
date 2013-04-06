@@ -7,14 +7,14 @@
 typedef struct{
 	unsigned char** grid;
 	int emptyBlocks;
-	unsigned char n;
+	unsigned char blocksPerSquare;
 	bool locked;
-}Sudoku;
+} Sudoku;
 
 typedef struct{
 	int N_sol;
 	unsigned char choices[255];
-}Solution;
+} Solution;
 
 typedef struct{
 	pthread_t thread;
@@ -26,13 +26,12 @@ typedef struct{
 	unsigned char x;
 	unsigned char y;
 	Solution** s;
-}subGrid;
+} subGrid;
 
-typedef struct{
-	int i;
-	int n;
+typedef struct {
+	int threadNumber;
+	int numberOfBlocks;
 	subGrid* subGrid;
-}parThread;
-
+} threadParameters;
 
 #endif

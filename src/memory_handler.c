@@ -9,17 +9,17 @@
 
 extern Sudoku* sudoku;
 
-void createGrid ( unsigned char n , unsigned char*** gridAdress )
+void createGrid ( unsigned char blocksPerSquare , unsigned char*** gridAdress )
 {
-	if ( ( *gridAdress = ( unsigned char** ) malloc( n*sizeof( unsigned char* ) ) ) == NULL )
+	if ( ( *gridAdress = ( unsigned char** ) malloc( blocksPerSquare*sizeof( unsigned char* ) ) ) == NULL )
 	{
 		perror( "Erreur de Mémoire (Malloc)" );
 		exit( EXIT_FAILURE );
 	}
 	
-	for( int i = 0 ; i < n ; i++)
+	for( int i = 0 ; i < blocksPerSquare ; i++)
 	{
-		if ( ( (*gridAdress)[i] = ( unsigned char* ) malloc( n*sizeof( unsigned char ) ) ) == NULL )
+		if ( ( (*gridAdress)[i] = ( unsigned char* ) malloc( blocksPerSquare*sizeof( unsigned char ) ) ) == NULL )
 		{
 			perror ( "Erreur de Mémoire (Malloc)" ) ;
 			exit ( EXIT_FAILURE );
@@ -29,8 +29,7 @@ void createGrid ( unsigned char n , unsigned char*** gridAdress )
 
 void deleteSudoku(Sudoku* sudoku)
 {
-	int i;
-	for(i = 0; i < sudoku->n ; i++)
+	for( int i = 0; i < sudoku->blocksPerSquare ; i++)
 	{
 		free(sudoku->grid[i]);
 	}
@@ -38,33 +37,30 @@ void deleteSudoku(Sudoku* sudoku)
 	free(sudoku);
 }
 
-//////////////////////////////////////
 
-void initSudoku( Sudoku** sudokuAdress, unsigned char** grid, unsigned char npar)
+void initSudoku( Sudoku** sudokuAdress, unsigned char** grid, unsigned char blocksPerSquare)
 {
 	
-	Sudoku* sudoku = malloc(sizeof(Sudoku));
+	*sudokuAdress = malloc (sizeof( Sudoku ));
 	if(sudoku == NULL)
 	{
-		perror("Erreur de Mémoire (Malloc)");
+		perror( "Erreur de Mémoire (Malloc)" );
 		exit( EXIT_FAILURE );
-	}
-	*sudokuAdress = sudoku;
-	
+	}	
 	//Calcul de emptyBlocks
 	int i, j;
-	sudoku->emptyBlocks = 0;
-	sudoku->n = npar;
-	sudoku->grid = grid;
-	sudoku->locked = false;
+	*sudokuAdress->emptyBlocks = 0;
+	*sudokuAdress->blocksPerSquare = blocksPerSquare;
+	*sudokuAdress->grid = grid;
+	*sudokuAdress->locked = false;
 	
-	for(i = 0 ; i < sudoku->n ; i++)
+	for(i = 0 ; i < *sudokuAdress->blocksPerSquare ; i++)
 	{
-		for(j = 0 ; j < sudoku->n ; j++)
+		for(j = 0 ; j < *sudokuAdress->blocksPerSquare ; j++)
 		{
 			if(grid[i][j] == 0)
 			{
-				sudoku->emptyBlocks++;
+				*sudokuAdress->emptyBlocks++;
 			}
 		}
 	}
@@ -72,32 +68,30 @@ void initSudoku( Sudoku** sudokuAdress, unsigned char** grid, unsigned char npar
 }
 
 
-void launchThreads( subGrid** threadsAdress, int n)
+void launchThreads( subGrid** threadsAdresses, int blocksPerSquare)
 {
-	parThread *arg;
-	arg = malloc(n * sizeof(parThread));
-	if(arg == NULL)
+	threadParameters *arg;
+	arg = malloc ( blocksPerSquare*sizeof(threadParameters) );
+	if ( arg == NULL )
 	{
-		perror("Problème de Malloc ");
+		perror( "Problème de Mémoire (Malloc)" );
 		exit ( EXIT_FAILURE );
 	}
 
-	(*threadsAdress) = malloc( n * sizeof( subGrid ) );
-	if(*threadsAdress == NULL)
+	*threadsAdresses = malloc( blocksPerSquare * sizeof( subGrid ) );
+	if( *threadsAdresses == NULL )
 	{
-		perror("Erreur de Malloc ");
+		perror( "Erreur de Mémoire (Malloc)" );
 		exit( EXIT_FAILURE );
 	}
 
-	printf("Lancement de %d threads\n", n);
-	for( int i = 0 ; i < n ; i++ )
+	printf ( "Lancement de %d threads\n" , blocksPerSquare );
+	for( int i = 0 ; i < blocksPerSquare ; i++ )
 	{
-		arg[i].i = i;
-		arg[i].n = n;
-		arg[i].subGrid = &((*threadsAdress)[i]); //Adresse de la subGrid concernée
-		//printf("Plouf : %d\n", tab[2]);
-		//initSubGrid( &((*threadsAdress)[i]), i, n );
-		if( pthread_create( &( (*threadsAdress)[i].thread ) , NULL, threadStart , &(arg[i]) ) != 0 )
+		arg[i].threadNumber = i;
+		arg[i].numberOfBlocks = blocksPerSquare;
+		arg[i].subGrid = &( ( *threadsAdresses )[i] ); //Adresse de la subGrid concernée
+		if ( pthread_create( &( (*threadsAdresses)[i].thread ) , NULL, threadStart , &(arg[i]) ) != 0 )
         {
                 perror( "Erreur dans pthread_create" );
                 exit( EXIT_FAILURE );
@@ -106,12 +100,12 @@ void launchThreads( subGrid** threadsAdress, int n)
 	}
 	for( int i = 0 ; i < n ; i++ )
 	{
-		if(pthread_join( (*threadsAdress)[i].thread, NULL ) != 0)
+		if ( pthread_join ( (*threadsAdress)[i].thread , NULL ) != 0 )
         {
-                perror("Erreur dans pthread_join");
-                exit( EXIT_FAILURE );
+                perror ( "Erreur dans pthread_join" );
+                exit ( EXIT_FAILURE );
         }
-	}printf("test\n");
+	}
     return;
 }
 

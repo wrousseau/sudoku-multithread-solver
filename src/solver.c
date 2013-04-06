@@ -9,10 +9,9 @@ extern Sudoku* sudoku;
 
 void *threadStart(void* arg)
 {
-	parThread* tab = arg;
+	threadParameters* tab = arg;
 	int n = tab->n, i = tab->i;
 	unsigned char* result;
-	//printf("%d\n", (int) tab[1]);
 	initSubGrid( tab->subGrid , i, n );
 
 	int widthSubSquare;
@@ -46,7 +45,7 @@ unsigned char* searchChoices(subGrid* par, int n, int widthSubSquare)
 	int resultPointer = 0;
 	if( (result = malloc(255*3*sizeof(unsigned char)) ) == NULL)
 	{
-		perror("Erreur de malloc ");
+		perror ( "Erreur de malloc" );
 		exit ( EXIT_FAILURE );
 	}
 	for( int m = 0 ; m < widthSubSquare ; m++)

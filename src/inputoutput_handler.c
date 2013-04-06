@@ -90,25 +90,25 @@ void readGrid ( char* filePath , unsigned char** grid , unsigned char n )
 
 void writeGrid(char* resultPath, unsigned char** grid, unsigned char n)
 {
-	int i, j;
 	FILE* file = fopen(resultPath, "w");
 	if(file == NULL)
 	{
 		perror( "Problème lors de l'ouverture en écriture du fichier de sortie." );
 		exit( EXIT_FAILURE );
 	}
+
 	fprintf(file, "%d\n", n); //on imprime la taille du sudoku
 	
-	for(i = 0 ; i < n ; i++)
+	for( int i = 0 ; i < n ; i++)
 	{
-		for( j = 0 ; j < n-1 ; j++)
+		for( int j = 0 ; j < n-1 ; j++)
 		{
 			fprintf(file, "%d ", grid[i][j]);
 			// Si on est pas en fin de ligne, on rajoute un espace entre 2 nombres
 		}
 		fprintf(file, "%d\n", grid[i][j]);
 	}
-	
+
 	fclose(file);
 	
 	return;
