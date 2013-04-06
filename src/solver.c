@@ -11,13 +11,10 @@ extern Sudoku* sudoku;
 
 void *threadStart(void* arg)
 {
-<<<<<<< HEAD
-	threadParameters* tab = arg;
-=======
 	int iDebug = 7;
-	parThread* tab = arg;
->>>>>>> 1fc5248f065e2d796c241f63844dfd0c9bc5ef72
-	int n = tab->n, i = tab->i;
+	threadParameters* tab = arg;
+
+	int n = tab->numberOfBlocks, i = tab->threadNumber;
 	unsigned char* result;
 	initSubGrid( tab->subGrid , i, n );
 
@@ -96,7 +93,7 @@ unsigned char* searchChoices(subGrid* par, int n, int widthSubSquare, bool init)
 }
 
 
-void fillGrid(unsigned char* result, parThread* tab)
+void fillGrid(unsigned char* result, threadParameters* tab)
 {
 	if(result[0] != 0)
 	{
@@ -127,7 +124,7 @@ void fillGrid(unsigned char* result, parThread* tab)
 
 unsigned char checkBlock(Solution *s, subGrid* thread, unsigned char i, unsigned char j, bool init)
 {
-	unsigned char n = sudoku->n;
+	unsigned char n = sudoku->blocksPerSquare;
 
 	if(init)
 	{
@@ -172,7 +169,7 @@ unsigned char checkBlock(Solution *s, subGrid* thread, unsigned char i, unsigned
 
 unsigned char getNaiveChoices(Solution *s, subGrid* thread, unsigned char i, unsigned char j)
 {
-	unsigned char n = sudoku->n, result = 0;
+	unsigned char n = sudoku->blocksPerSquare, result = 0;
 	int widthSubSquare = (int) sqrt( n );
 
 	for( int k = 0 ; k < n ; k++)//on procède aux tests ...
@@ -215,7 +212,7 @@ unsigned char getNaiveChoices(Solution *s, subGrid* thread, unsigned char i, uns
 
 unsigned char getSingletonChoices(Solution* s, subGrid* thread, unsigned char i, unsigned char j)
 {
-	unsigned char n = sudoku->n;
+	unsigned char n = sudoku->blocksPerSquare;
 	//int ik = -1, jk = -1, k=1;
 	int widthSubSquare = (int) sqrt( n );
 

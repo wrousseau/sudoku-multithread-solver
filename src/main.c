@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <time.h>
+#include <string.h>
 #include "structures.h"
 #include "memory_handler.h"
 #include "inputoutput_handler.h"
@@ -10,36 +11,60 @@
 
 Sudoku* sudoku;
 
+void displayUsage();
+
 int main (int argc, char **argv)
 {	
+	if ( ( argc == 2) && strcmp(argv[1],"help\n") ) 
+	{
+		displayUsage();
+		exit ( EXIT_SUCCESS );
+	}
+
 	clock_t begin, end;
 	double time_spent;
 	begin = clock();
+
 	unsigned char** grid; // Déclaration du double pointeur de la matrice représentant la grille de jeu
-	
 	unsigned char blocksPerSquare;
-	char *filePath = "sudoku_in.txt", *resultPath = "sudoku_out.txt";
 	subGrid* threads = NULL;
 
-	if(argc > 1)
+	char *filePath = "sudoku.in.txt", *resultPath = "sudoku.out.txt";
+	switch (argc)
 	{
-		filePath = argv[1];
-	}
-	if(argc > 2)
-	{
-		resultPath = argv[2];
+		case 1:
+			break;
+		case 2:
+			filePath = argv[1];
+			break;
+		case 3:
+			filePath = argv[1];
+			resultPath = argv[2];
+			break;
+		default:
+			displayUsage();
 	}
 
-	size = readDimensions(filePath);
+	blocksPerSquare = readDimensions(filePath);
 	createGrid(blocksPerSquare, &grid);
 	readGrid(filePath, grid, blocksPerSquare);
 	initSudoku( &sudoku, grid, blocksPerSquare);
-	launchThreads( &threads, blocksPerSquare);
+	//launchThreads( &threads, blocksPerSquare);
 	
 	writeGrid(resultPath, grid, blocksPerSquare);
 	deleteSudoku(sudoku);
+
 	end = clock();
 	time_spent = (double) (end - begin) / CLOCKS_PER_SEC; 
 	printf("Temps d'Exécution : %f seconds\n" ,time_spent);
 	exit( EXIT_SUCCESS );
+}
+
+void displayUsage()
+{
+	fprintf(stdout , "Usage :\n");
+	fprintf(stdout, "\"./exe/sudoku\" / \"make run\" : Default avec \"sudoku.in.txt\" en entrée.\n");
+	fprintf(stdout, "\"./exe/sudoku [INPUT]\" : Grille d\'entrée spécifiée.\n");
+	fprintf(stdout, "\"./exe/sudoku [INPUT] [OUTPUT]\" : Grilles d\'entrée et de sortie spécifiées.\n");
+	exit ( EXIT_SUCCESS );
 }

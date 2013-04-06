@@ -39,51 +39,27 @@ void readGrid ( char* filePath , unsigned char** grid , unsigned char n )
 		exit( EXIT_FAILURE );
 	}
 
-	int tmp, j, k, p, size = 255*4;
+	int i = 0, j, size = 255*4, number;
 	char buf[size];
-	char number[10];
+	char *tmp;
+
 	fgets( buf, size, file ); // On passe la première ligne
 
-	// Lecture des lignes
-	for ( int i = 0 ; i < n ; i++ ) 
+	while(fgets(buf, size, file) != NULL)
 	{
-		j = 0;
-		k = 0;
-		p = 0;
-
-		if (fgets(buf, size, file) == NULL)
-    	{
-        	perror ( "EOF Précoce" );
-        	exit ( EXIT_FAILURE );
-    	}
-
-		if (buf[strlen(buf) - 1] == '\n') 
+		for(tmp = strtok(buf," \t\n"), j = 0;
+			tmp != NULL;
+			tmp = strtok(NULL, " \t\n") , j++ )
 		{
-  			buf[strlen(buf) - 1] = '\0';
-		}
-
-		// Lecture des colonnes de la ligne
-		while(buf[p] != '\0' && j!=n) 
-		{
-			// Tant qu'il y a des chiffres on est sur un nombre, on le récupère dans un Sous-Buffer (number)
-			while(buf[p] != ' ' && buf[p] != '\0') 
+			number = atoi(tmp);
+			if(number > 255)
 			{
-				number[k] = buf[p];
-				k++;
-				p++;
+				perror ( "Un élément est supérieur à 255 dans la table fournie" );
+				exit ( EXIT_FAILURE );
 			}
-			number[k] = '\0';
-			k = 0;
-			tmp = atoi( number );
-			if(tmp > 255)
-			{
-				perror("Un élément est supérieur à 255 dans la table fournie");
-				exit( EXIT_FAILURE );
-			}
-			grid[i][j] = ( unsigned char ) tmp;
-			j++;
-			p++;
+			grid[i][j] = (unsigned char) number;
 		}
+		i++;
 	}
 
 	fclose(file);
@@ -109,7 +85,7 @@ void writeGrid(char* resultPath, unsigned char** grid, unsigned char n)
 			fprintf(file, "%d ", grid[i][j]);
 			// Si on est pas en fin de ligne, on rajoute un espace entre 2 nombres
 		}
-		fprintf(file, "%d\n", grid[i][j]);
+		fprintf(file, "%d\n", grid[i][n-1]);
 	}
 
 	fclose(file);
@@ -123,9 +99,9 @@ void writeGrid(char* resultPath, unsigned char** grid, unsigned char n)
 void printGrid()
 {
 	printf("GRID empty:%d\n", sudoku->emptyBlocks);
-	for( int i = 0 ; i < sudoku->n ; i++)
+	for( int i = 0 ; i < sudoku->blocksPerSquare ; i++)
 	{
-		for( int j = 0 ; j < sudoku->n ; j++)
+		for( int j = 0 ; j < sudoku->blocksPerSquare ; j++)
 		{
 			printf("%d ",sudoku->grid[i][j]);
 		}

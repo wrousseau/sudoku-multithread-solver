@@ -52,6 +52,8 @@ clean:
 
 mrproper: clean
 	rm -rf $(OBJ)
+	rm -f $(EXE_PATH)/$(PRODUCT)
+	rm -f  *.out.txt
 	@echo "Nettoyage des fichiers temporaires et des .DS_Store effectué." 
 
 tar:

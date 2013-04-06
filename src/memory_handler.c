@@ -49,18 +49,18 @@ void initSudoku( Sudoku** sudokuAdress, unsigned char** grid, unsigned char bloc
 	}	
 	//Calcul de emptyBlocks
 	int i, j;
-	*sudokuAdress->emptyBlocks = 0;
-	*sudokuAdress->blocksPerSquare = blocksPerSquare;
-	*sudokuAdress->grid = grid;
-	*sudokuAdress->locked = false;
+	(*sudokuAdress)->emptyBlocks = 0;
+	(*sudokuAdress)->blocksPerSquare = blocksPerSquare;
+	(*sudokuAdress)->grid = grid;
+	(*sudokuAdress)->locked = false;
 	
-	for(i = 0 ; i < *sudokuAdress->blocksPerSquare ; i++)
+	for(i = 0 ; i < (*sudokuAdress)->blocksPerSquare ; i++)
 	{
-		for(j = 0 ; j < *sudokuAdress->blocksPerSquare ; j++)
+		for(j = 0 ; j < (*sudokuAdress)->blocksPerSquare ; j++)
 		{
 			if(grid[i][j] == 0)
 			{
-				*sudokuAdress->emptyBlocks++;
+				(*sudokuAdress)->emptyBlocks++;
 			}
 		}
 	}
@@ -98,9 +98,9 @@ void launchThreads( subGrid** threadsAdresses, int blocksPerSquare)
         }
 
 	}
-	for( int i = 0 ; i < n ; i++ )
+	for( int i = 0 ; i < blocksPerSquare ; i++ )
 	{
-		if ( pthread_join ( (*threadsAdress)[i].thread , NULL ) != 0 )
+		if ( pthread_join ( (*threadsAdresses)[i].thread , NULL ) != 0 )
         {
                 perror ( "Erreur dans pthread_join" );
                 exit ( EXIT_FAILURE );
