@@ -133,13 +133,16 @@ void initSubGrid( subGrid* par , int i, int n )
 		} 
 	}
 
-	par -> emptyBlocks = sudoku -> emptyBlocks;
+	//par -> emptyBlocks = sudoku -> emptyBlocks;
 	//printf("i : %d  ||  n : %d\n", i, n);
 	//printf("x : %d  ||  y : %d\n", par->x, par->y);
 
-	searchChoices( par, n, widthSubSquare);
+	searchChoices( par, n, widthSubSquare, true);
 
 	return;
 }
+
+
+
 
 
