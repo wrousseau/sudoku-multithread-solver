@@ -133,10 +133,10 @@ unsigned char checkBlock(Solution *s, subGrid* thread, unsigned char i, unsigned
 {
 	unsigned char n = sudoku->blocksPerSquare;
 
-	if ( init ) // si on est 
+	if ( init ) // Si on est 
 	{
 		unsigned char block;
-		if((block = sudoku->grid[i][j]) != 0) //si on connait déjà la case
+		if((block = sudoku->grid[i][j]) != 0) // Si on connaît déjà la case
 		{
 			s->N_sol = 1;
 			for( int k = 0 ; k < n ; k++)
