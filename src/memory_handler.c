@@ -13,7 +13,7 @@ void createGrid ( unsigned char blocksPerSquare , unsigned char*** gridAdress )
 {
 	if ( ( *gridAdress = ( unsigned char** ) malloc( blocksPerSquare*sizeof( unsigned char* ) ) ) == NULL )
 	{
-		perror( "Erreur de Mémoire (Malloc)" );
+		perror( "Malloc" );
 		exit( EXIT_FAILURE );
 	}
 	
@@ -21,7 +21,7 @@ void createGrid ( unsigned char blocksPerSquare , unsigned char*** gridAdress )
 	{
 		if ( ( (*gridAdress)[i] = ( unsigned char* ) malloc( blocksPerSquare*sizeof( unsigned char ) ) ) == NULL )
 		{
-			perror ( "Erreur de Mémoire (Malloc)" ) ;
+			perror ( "Malloc" ) ;
 			exit ( EXIT_FAILURE );
 		}
 	}	

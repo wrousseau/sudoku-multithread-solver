@@ -15,7 +15,7 @@ void displayUsage();
 
 int main (int argc, char **argv)
 {	
-	if ( ( argc == 2) && strcmp(argv[1],"help\n") ) 
+	if ( ( argc >= 2) && strcmp ( argv[1] , "help\n" ) ) 
 	{
 		displayUsage();
 		exit ( EXIT_SUCCESS );
@@ -56,7 +56,7 @@ int main (int argc, char **argv)
 
 	end = clock();
 	time_spent = (double) (end - begin) / CLOCKS_PER_SEC; 
-	printf("Temps d'Exécution : %f seconds\n" ,time_spent);
+	printf("Temps d'Exécution : %f secondes\n" ,time_spent);
 	exit( EXIT_SUCCESS );
 }
 

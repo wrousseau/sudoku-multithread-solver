@@ -106,7 +106,8 @@ void printGrid()
 			printf("%d ",sudoku->grid[i][j]);
 		}
 		printf("\n");
-	}printf("\n");
+	}
+	printf("\n");
 	return;
 }
 
