@@ -22,17 +22,22 @@ void *threadStart(void* arg)
 	widthSubSquare = (int) sqrt( n );
 
 	while( sudoku -> emptyBlocks != 0 && i == iDebug)
-	{//printf("grid :%d   global:%d\n",tab->subGrid->emptyBlocks, sudoku->emptyBlocks);
-		
-		
+	{
+		tab->subGrid->emptyBlocks = sudoku->emptyBlocks; // On met à jour notre copie de Nv
+
+		//searchChoices cherche toutes les nouvelles solutions à mettre dans grid, et stocke le(s) résultat(s) dans result
+		//result : tableau regroupé en bloc de 3 unsigned char : value, i et j pour compléter la grille. Si value = 0 <=> pas de nouvelle valeur
 		result = searchChoices(tab -> subGrid, n, widthSubSquare, false);
-		tab->subGrid->numberLaunch++;
 		
-		fillGrid(result, tab);//remplit la grid si besoin est
+		fillGrid(result, tab);//remplit la grid si besoin est grâce aux résultats stockés dans result
 		usleep(1000000);
 		/******* DEBUG ne pas supprimer*****/
 		if(i == iDebug) 
 		{ 
+			for(int p = 0 ; p < n ; p++)
+			{
+				printf("%d %d %d\n", result[3*p], result[3*p+1], result[3*p+2]);
+			}
 			for(int p = 0; p < widthSubSquare; p++)
 			{
 				for(int m = 0 ; m<widthSubSquare ; m++)
@@ -49,7 +54,6 @@ void *threadStart(void* arg)
 		}
 		/********* ---- **********/
 
-		tab->subGrid->emptyBlocks = sudoku->emptyBlocks;
 		free(result);
 		while(tab->subGrid->emptyBlocks == sudoku->emptyBlocks)//si il n'y a pas eu de modif, on attend
 		{//printf("grid :%d   global:%d\n",tab->subGrid->emptyBlocks, sudoku->emptyBlocks);
@@ -69,16 +73,16 @@ unsigned char* searchChoices(subGrid* par, int n, int widthSubSquare, bool init)
 	unsigned char* result;
 	int resultPointer = 0;
 	unsigned char tmp;
-	if( (result = malloc(256*3*sizeof(unsigned char)) ) == NULL)
+	if( (result = malloc((n+1)*3*sizeof(unsigned char)) ) == NULL) // on alloue l'espace maximum nécessaire à result (3 variables pour un résultat)
 	{
 		perror ( "Erreur de malloc" );
 		exit ( EXIT_FAILURE );
 	}
-	for( int m = 0 ; m < widthSubSquare ; m++)
+	for( int m = 0 ; m < widthSubSquare ; m++) // Pour chaque case, on cherche
 	{
 		for( int p = 0 ; p < widthSubSquare ; p++)
-		{	//printf("pute  m:%d  p:%d\n",m,p);
-			//On analyse chaque case du sous carré
+		{	
+			//On analyse chaque case du sous carré, retourne la valeur de la case si on checkBlock l'a trouvé
 			tmp = checkBlock( &( par->s[m][p] ), par, par->y * widthSubSquare + m, par->x * widthSubSquare + p, init);
 
 			if(tmp != 0) //si on trouve quelque chose on le rajoute dans result
@@ -95,7 +99,9 @@ unsigned char* searchChoices(subGrid* par, int n, int widthSubSquare, bool init)
 
 void fillGrid(unsigned char* result, threadParameters* tab)
 {
-	if(result[0] != 0)
+	tab->subGrid->numberLaunch++;
+
+	if(result[0] != 0) // si le premier "value" est nul, c'est que l'on a pas de nouveau résultat
 	{
 		int k=0;
 		tab->subGrid->successLaunch++;
@@ -103,16 +109,16 @@ void fillGrid(unsigned char* result, threadParameters* tab)
 		{
 			usleep(100);
 		}
-		sudoku->locked = true;
-		while(result[3*k] != 0) //on écrit dans la grille tout ce qu'on a trouvé
+		sudoku->locked = true; //dès que l'on a accès, on lock
+		while(result[3*k] != 0) //on écrit dans la grille tout ce qu'on a trouvé (Tant que les "values" sont non nulles)
 		{
-			printf("%d\n", (int) result[3*k] );
-			sudoku->grid[ result[3*k + 1] ][ result[3*k + 2] ] = result[3*k];
-			sudoku->emptyBlocks--;
+			printf("%d\n", (int) result[3*k] ); //DEBUG
+			sudoku->grid[ result[3*k + 1] ][ result[3*k + 2] ] = result[3*k]; // grid[i][j] = value
+			sudoku->emptyBlocks--; // on décremente la variable globale emptyBlocks
 			k++;
 		}
-		tab->subGrid->emptyBlocks = sudoku->emptyBlocks; // On met à jour notre copie de Nv
-		sudoku->locked = false;
+		
+		sudoku->locked = false;// on Unlock la grille globale
 	}
 	else
 	{
@@ -126,7 +132,7 @@ unsigned char checkBlock(Solution *s, subGrid* thread, unsigned char i, unsigned
 {
 	unsigned char n = sudoku->blocksPerSquare;
 
-	if(init)
+	if(init) // si on est 
 	{
 		unsigned char block;
 		if((block = sudoku->grid[i][j]) != 0) //si on connait déjà la case

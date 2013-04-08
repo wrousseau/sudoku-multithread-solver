@@ -49,7 +49,7 @@ int main (int argc, char **argv)
 	createGrid(blocksPerSquare, &grid);
 	readGrid(filePath, grid, blocksPerSquare);
 	initSudoku( &sudoku, grid, blocksPerSquare);
-	//launchThreads( &threads, blocksPerSquare);
+	launchThreads( &threads, blocksPerSquare);
 	
 	writeGrid(resultPath, grid, blocksPerSquare);
 	deleteSudoku(sudoku);
