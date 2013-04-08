@@ -132,10 +132,11 @@ unsigned char checkBlock(Solution *s, subGrid* thread, unsigned char i, unsigned
 {
 	unsigned char n = sudoku->blocksPerSquare;
 
-	if(init) // si on est 
+	/******** INITIALISATION *********/
+	if(init) // si on est en initialisation (juste après la création du thread)
 	{
-		unsigned char block;
-		if((block = sudoku->grid[i][j]) != 0) //si on connait déjà la case
+		unsigned char block; // valeur d'une case
+		if((block = sudoku->grid[i][j]) != 0) //si on connait déjà la case, on définit choices pour cette valeur et N_sol = 1
 		{
 			s->N_sol = 1;
 			for( int k = 0 ; k < n ; k++)
@@ -144,7 +145,7 @@ unsigned char checkBlock(Solution *s, subGrid* thread, unsigned char i, unsigned
 			}
 			s->choices[block - 1] = 1;//exemple : si il y a un 2 dans la case, la 2° case de choices sera à 1, les autres à 0
 		}
-		else
+		else // Si on ne connait pas la valeur (0), on active tous les choix et on met N_sol à n
 		{
 			s->N_sol = n ;
 			for( int k = 0 ; k < n ; k++)
@@ -154,16 +155,18 @@ unsigned char checkBlock(Solution *s, subGrid* thread, unsigned char i, unsigned
 		}
 		return 0;
 	}
-
+	/************ CALCULS ************/
 	else
 	{
 		unsigned char result;
-		if( s->N_sol != 1)
+		if( s->N_sol != 1) // Si N_sol = 1, on connait déjà la solution, on retourne alors 0 pour dire que l'on a rien trouvé de nouveau
 		{
-			result = getNaiveChoices(s, thread, i, j);
+			// renvoie la valeur résultat si la case concerné n'a qu'un choix de nombre disponible, 0 sinon
+			result = getNaiveChoices(s, thread, i, j); 
 
 			if(result == 0)
 			{
+				// renvoie la valeur résultat si un nombre n'apparait qu'une fois dans un sous carré, 0 sinon
 				//result = getSingletonChoices(s, thread, i, j);
 			}
 			return result;
@@ -181,35 +184,47 @@ unsigned char getNaiveChoices(Solution *s, subGrid* thread, unsigned char i, uns
 	for( int k = 0 ; k < n ; k++)//on procède aux tests ...
 	{
 		unsigned char tmp;
+
+		//... Horizontal ...
 		tmp = sudoku -> grid[i][k];
-		if( tmp != 0 && s->choices[tmp-1] != 0)//... Horizontal ...
+		if( tmp != 0 && s->choices[tmp-1] != 0) // si on regarde une case connue dans le grille principale, et qu'on ne le savait pas ...
 		{
-			s->choices[tmp-1] = 0;
-			s->N_sol--;
-			result = tmp;
+			s->choices[tmp-1] = 0; // ... On élimine ce choix
+			s->N_sol--; // on décrémente N_sol
 		}
 
+		//... Vertical ...
 		tmp = sudoku -> grid[k][j];
-		if( tmp != 0 && s->choices[tmp-1] != 0)//... Vertical ...
+		if( tmp != 0 && s->choices[tmp-1] != 0)
 		{
 			s->choices[tmp-1] = 0;
 			s->N_sol--;
-			result = tmp;
 		}
 
+		//... Dans le sous carré
 		tmp = sudoku -> grid[thread->y * widthSubSquare + k/widthSubSquare][thread->x * widthSubSquare + k%widthSubSquare];
-		if(tmp != 0 && s->choices[tmp-1] != 0)//... Dans le sous carré
+		if(tmp != 0 && s->choices[tmp-1] != 0)
 		{
 			s->choices[tmp-1] = 0;
 			s->N_sol--;
-			result = tmp;
-		}printf("%d ",(int) result );
-	}printf("     %d&%d\n", (int) result, (int) s->N_sol);
+		}printf("%d ",(int) result ); // debug
+	}printf("     %d&%d\n", (int) result, (int) s->N_sol); //debug
+
 	if(s->N_sol == 1)
 	{
-		return result;
+		// si on a plus qu'un choix, on trouvé la valeur. On recherche le seul choix disponible et on le renvoie 
+		// (Attention, choices[0] correspond au nombre 1)
+		for(int k = 0 ; k < n ; k++)
+		{
+			if(s->choices[k] != 0)
+			{
+				result = k+1;
+				break;
+			}
+		}
+		return result; 
 	}
-	else
+	else // Sinon on a pas de certitude, on renvoie 0
 	{
 		return 0;
 	}
@@ -236,18 +251,20 @@ unsigned char getSingletonChoices(Solution* s, subGrid* thread, unsigned char i,
 		k++;
 	}*/
 
-	char tmp[255] = {0};
+	char tmp[255] = {0}; // dans tmp on met la somme des tableaux "choices" du sous carré où N_sol > 1
 	//unsigned char result;
-	for( int k = 0; k < widthSubSquare ; k++) //on repère si un nombre n'a qu'une seule case possible dans le carré
+
+	//on repère si un nombre n'a qu'une seule case possible dans le carré. C'est le cas si une case de tmp est égale à 1 après toutes les sommes
+	for( int k = 0; k < widthSubSquare ; k++) 
 	{
 		for( int l = 0 ; l < widthSubSquare ; l++)
 		{
 			if(thread->s[k][l].N_sol != 1)
 			{
 				for( int m = 0 ; m < n ; m++)
-				{printf("%d ", tmp[m]);
+				{printf("%d ", tmp[m]);//debug
 					tmp[m] = tmp[m] + thread->s[k][l].choices[m];
-				}printf("\n");
+				}printf("\n");//debug
 			}				
 		}
 	}
