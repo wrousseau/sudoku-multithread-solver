@@ -6,5 +6,7 @@ void deleteSudoku(Sudoku* sudoku);
 void initSudoku( Sudoku** sudokuAdress, unsigned char** grid, unsigned char size);
 void launchThreads( subGrid** threadsAdress, int size);
 void initSubGrid( subGrid* par , int i, int n );
+void initResult(unsigned char **result, int numberOfBlocks);
+
 
 #endif
