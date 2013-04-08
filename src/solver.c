@@ -23,14 +23,14 @@ void *threadStart(void* arg)
 
 	while( sudoku -> emptyBlocks != 0 && i == iDebug)
 	{
-		tab->subGrid->emptyBlocks = sudoku->emptyBlocks; // On met Ã  jour notre copie de Nv
+		tab->subGrid->emptyBlocks = sudoku->emptyBlocks; // On met à jour notre copie de Nv
 
-		//searchChoices cherche toutes les nouvelles solutions Ã  mettre dans grid, et stocke le(s) rÃ©sultat(s) dans result
-		//result : tableau regroupÃ© en bloc de 3 unsigned char : value, i et j pour complÃ©ter la grille. Si value = 0 <=> pas de nouvelle valeur
+		//searchChoices cherche toutes les nouvelles solutions à mettre dans grid, et stocke le(s) résultat(s) dans result
+		//result : tableau regroupant en bloc 3 unsigned char : value, l'abcisse et l'ordonnée de la case pour compléter la grille. Si value = 0, pas de nouvelle valeur
 		initResult(&result , tab -> numberOfBlocks);
 		searchChoices(&result, tab -> subGrid, tab->numberOfBlocks, subSquareWidth, false);
 
-		// Remplissage la grid si besoin est grÃ¢ce aux rÃ©sultats stockÃ©s dans result
+		// Remplissage la grid si besoin est grâce aux résultats stockés dans result
 		fillGrid(result, tab);
 		usleep(1000000);
 		/******* DEBUG ne pas supprimer*****/
@@ -53,25 +53,20 @@ void *threadStart(void* arg)
 			}
 			printGrid();
 			printf("grid :%d   global:%d\n",tab->subGrid->emptyBlocks, sudoku->emptyBlocks);
-			//exit(0);
 		}
 		/********* ---- **********/
 
 		free(result);
-		while(tab->subGrid->emptyBlocks == sudoku->emptyBlocks)//si il n'y a pas eu de modif, on attend
-		{//printf("grid :%d   global:%d\n",tab->subGrid->emptyBlocks, sudoku->emptyBlocks);
+		while(tab->subGrid->emptyBlocks == sudoku->emptyBlocks) // Si il n'y a pas eu de modif, on attend
+		{
 			usleep(1000);
 		}
-		
-		//writeGrid("sudoku_out.txt", sudoku->grid, 9);
 	}
 
 	return NULL;
 }
 
-
-
-void searchChoices(unsigned char **result , subGrid* currentSubGrid, int numberOfBlocks, int widthSubSquare, bool init)
+void searchChoices(unsigned char **result , subGrid* currentSubGrid, int numberOfBlocks, int widthSubSquare)
 {
 	int resultPointer = 0;
 	unsigned char tmp;
@@ -80,18 +75,50 @@ void searchChoices(unsigned char **result , subGrid* currentSubGrid, int numberO
 	{
 		for( int j = 0 ; j < widthSubSquare ; j++)
 		{	
-			// On analyse chaque case du sous carrÃ©, retourne la valeur de la case si on checkBlock l'a trouvÃ©
+			// On analyse chaque case du sous carré, retourne la valeur de la case si on checkBlock l'a trouvÃ©
 			tmp = checkBlock( &( currentSubGrid->solution[i][j] ) , 
 							  currentSubGrid , 
 							  currentSubGrid->y * widthSubSquare + i , 
-							  currentSubGrid->x * widthSubSquare + j , 
-							  init );
+							  currentSubGrid->x * widthSubSquare + j );
 
 			if(tmp != 0) // Si on trouve une solution, on la rajoute dans result
 			{
 				result[3*resultPointer] = tmp; // la valeur
 				result[3*resultPointer + 1] = currentSubGrid->y * widthSubSquare + m; // On stocke "l'ordonnÃ©e" de la case
 				result[3*resultPointer + 2] = currentSubGrid->x * widthSubSquare + p; // On stocke "l'abcisse" de la case
+			}
+		}
+	}
+}
+
+void initChoices(subGrid* currentSubGrid, int widthSubSquare)
+{
+	for( int i = 0 ; i < widthSubSquare ; i++) // Pour chaque case, on cherche
+	{
+		for( int j = 0 ; j < widthSubSquare ; j++)
+		{	
+			Solution *s = &( currentSubGrid->solution[i][j] );
+			int y = currentSubGrid->y * widthSubSquare + i;
+			int x = currentSubGrid->x * widthSubSquare + j;
+			unsigned char n = sudoku->blocksPerSquare;
+
+			unsigned char block; // valeur d'une case
+			if((block = sudoku->grid[y][x]) != 0) //si on connait déjà la case, on définit choices pour cette valeur et N_sol = 1
+			{
+				s->N_sol = 1;
+				for( int k = 0 ; k < n ; k++)
+				{
+					s->choices[k] = 0;
+				}
+				s->choices[block - 1] = 1;//exemple : si il y a un 2 dans la case, la 2° case de choices sera à 1, les autres à 0
+			}
+			else // Si on ne connait pas la valeur (0), on active tous les choix et on met N_sol à n
+			{
+				s->N_sol = n ;
+				for( int k = 0 ; k < n ; k++)
+				{
+					s->choices[k] = 1;
+				}
 			}
 		}
 	}
@@ -110,7 +137,7 @@ void fillGrid(unsigned char* result, threadParameters* tab)
 		{
 			usleep(100);
 		}
-		sudoku->locked = true; //dÃ¨s que l'on a accÃ¨s, on lock
+		sudoku->locked = true; //dÃ¨s que l'on a accès, on lock
 		while(result[3*k] != 0) //on Ã©crit dans la grille tout ce qu'on a trouvÃ© (Tant que les "values" sont non nulles)
 		{
 			printf("%d\n", (int) result[3*k] ); //DEBUG
@@ -129,49 +156,21 @@ void fillGrid(unsigned char* result, threadParameters* tab)
 }
 
 
-unsigned char checkBlock(Solution *s, subGrid* thread, unsigned char i, unsigned char j, bool init)
+unsigned char checkBlock(Solution *s, subGrid* thread, unsigned char i, unsigned char j)
 {
 	unsigned char n = sudoku->blocksPerSquare;
-
-	/******** INITIALISATION *********/
-	if(init) // si on est en initialisation (juste après la création du thread)
+	unsigned char result;
+	if( s->N_sol != 1) // Si N_sol = 1, on connait déjà la solution, on retourne alors 0 pour dire que l'on a rien trouvé de nouveau
 	{
-		unsigned char block; // valeur d'une case
-		if((block = sudoku->grid[i][j]) != 0) //si on connait déjà la case, on définit choices pour cette valeur et N_sol = 1
-		{
-			s->N_sol = 1;
-			for( int k = 0 ; k < n ; k++)
-			{
-				s->choices[k] = 0;
-			}
-			s->choices[block - 1] = 1;//exemple : si il y a un 2 dans la case, la 2° case de choices sera à 1, les autres à 0
-		}
-		else // Si on ne connait pas la valeur (0), on active tous les choix et on met N_sol à n
-		{
-			s->N_sol = n ;
-			for( int k = 0 ; k < n ; k++)
-			{
-				s->choices[k] = 1;
-			}
-		}
-		return 0;
-	}
-	/************ CALCULS ************/
-	else
-	{
-		unsigned char result;
-		if( s->N_sol != 1) // Si N_sol = 1, on connait déjà la solution, on retourne alors 0 pour dire que l'on a rien trouvé de nouveau
-		{
-			// renvoie la valeur résultat si la case concerné n'a qu'un choix de nombre disponible, 0 sinon
-			result = getNaiveChoices(s, thread, i, j); 
+		// renvoie la valeur résultat si la case concerné n'a qu'un choix de nombre disponible, 0 sinon
+		result = getNaiveChoices(s, thread, i, j); 
 
-			if(result == 0)
-			{
-				// renvoie la valeur résultat si un nombre n'apparait qu'une fois dans un sous carré, 0 sinon
-				//result = getSingletonChoices(s, thread, i, j);
-			}
-			return result;
+		if(result == 0)
+		{
+			// renvoie la valeur résultat si un nombre n'apparait qu'une fois dans un sous carré, 0 sinon
+			//result = getSingletonChoices(s, thread, i, j);
 		}
+		return result;
 	}
 	return 0;
 }

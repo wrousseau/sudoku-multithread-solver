@@ -137,7 +137,7 @@ void initSubGrid( subGrid* par , int i, int n )
 	//printf("i : %d  ||  n : %d\n", i, n);
 	//printf("x : %d  ||  y : %d\n", par->x, par->y);
 
-	searchChoices( par, n, widthSubSquare, true);
+	initChoices( par, n, widthSubSquare );
 
 	return;
 }
