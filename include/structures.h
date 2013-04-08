@@ -25,7 +25,7 @@ typedef struct{
 	int failLaunch;
 	unsigned char x;
 	unsigned char y;
-	Solution** s;
+	Solution** solution;
 } subGrid;
 
 typedef struct {

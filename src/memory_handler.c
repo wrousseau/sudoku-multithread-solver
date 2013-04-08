@@ -142,6 +142,16 @@ void initSubGrid( subGrid* par , int i, int n )
 	return;
 }
 
+void initResult(unsigned char **result, int numberOfBlocks)
+{
+	// On alloue l'espace maximum nécessaire à result (3 variables pour un résultat)
+	if( (*result = malloc((numberOfBlocks+1)*3*sizeof(unsigned char)) ) == NULL)
+	{
+		perror ( "Malloc : " );
+		exit ( EXIT_FAILURE );
+	}
+}
+
 
 
 
