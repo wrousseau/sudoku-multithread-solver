@@ -253,30 +253,34 @@ unsigned char getSingletonChoices(Solution* s, subGrid* thread, unsigned char i,
 	}*/
 
 	char tmp[255] = {0}; // dans tmp on met la somme des tableaux "choices" du sous carré où N_sol > 1
-	//unsigned char result; 
 
 	//on repère si un nombre n'a qu'une seule case possible dans le carré. C'est le cas si une case de tmp est égale à 1 après toutes les sommes
 	for( int k = 0; k < widthSubSquare ; k++) 
 	{
 		for( int l = 0 ; l < widthSubSquare ; l++)
 		{
-			if(thread->s[k][l].N_sol != 1)
+			if(thread->s[k][l].N_sol != 1) // On ne prend pas en compte les cases qu'on connait déjà, car ce sont des singletons peu interessants
 			{
-				for( int m = 0 ; m < n ; m++)
-				{printf("%d ", tmp[m]);//debug
+				for( int m = 0 ; m < n ; m++) // On fait la somme sur tout le tableau
+				{
+					printf("%d ", tmp[m]);//debug
 					tmp[m] = tmp[m] + thread->s[k][l].choices[m];
-				}printf("\n");//debug
+				}
+				printf("\n");//debug
 			}				
 		}
 	}
-	for( int k = 0 ; k < n ; k++) // on vérifie s'il y a un singleton dans le sous carré
-	{printf("%d ", (int) tmp[k]);}printf("     :%d%d   :%d\n\n", thread->x, thread->y, s->N_sol);
+	for( int k = 0 ; k < n ; k++) // DEBUG
+	{
+		printf("%d ", (int) tmp[k]); // DEBUG
+	}printf("     :%d%d   :%d\n\n", thread->x, thread->y, s->N_sol);// debug
 
-	for( int k = 0 ; k < n ; k++) // on vérifie s'il y a un singleton dans le sous carré
+	for( int k = 0 ; k < n ; k++) // On vérifie s'il y a un singleton dans le sous carré
 	{
 		if(tmp[k] == 1 && s->choices[k] == 1) 
-		//si on en trouve un qui correspond au block analysé, on envoie la valeur (+1 car le tableau commence à 0)  
+		// Si on en trouve un qui correspond au block analysé, on envoie la valeur (+1 car le tableau commence à 0)  
 		{
+			// On met tout comme il faut dans choices et N_sol
 			s->N_sol = 1;
 			for( int l = 0 ; l < n ; l++)
 			{
@@ -284,7 +288,7 @@ unsigned char getSingletonChoices(Solution* s, subGrid* thread, unsigned char i,
 			}
 			s->choices[k] = 1;
 
-			return k+1; 
+			return k+1; // On retourne la valeur trouvée de la case
 		}
 	}
 
