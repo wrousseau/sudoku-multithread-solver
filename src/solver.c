@@ -258,7 +258,7 @@ unsigned char getSingletonChoices(Solution* s, subGrid* thread, unsigned char i,
 	for( int k = 0 ; k < n ; k++) // on vérifie s'il y a un singleton dans le sous carré
 	{
 		if(tmp[k] == 1 && s->choices[k] == 1) 
-		//si on en trouve un qui correspond au block analysé, on envoie la valeur (+1 car le tableau commence à 0)
+		//si on en trouve un qui correspond au block analysé, on envoie la valeur (+1 car le tableau commence à 0)  
 		{
 			s->N_sol = 1;
 			for( int l = 0 ; l < n ; l++)
