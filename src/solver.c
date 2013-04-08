@@ -252,7 +252,7 @@ unsigned char getSingletonChoices(Solution* s, subGrid* thread, unsigned char i,
 	}*/
 
 	char tmp[255] = {0}; // dans tmp on met la somme des tableaux "choices" du sous carré où N_sol > 1
-	//unsigned char result;
+	//unsigned char result; 
 
 	//on repère si un nombre n'a qu'une seule case possible dans le carré. C'est le cas si une case de tmp est égale à 1 après toutes les sommes
 	for( int k = 0; k < widthSubSquare ; k++) 
