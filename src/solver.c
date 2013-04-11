@@ -131,7 +131,7 @@ void fillGrid(unsigned char* result, threadParameters* tab)
 {
 	tab->subGrid->numberLaunch++;
 
-	if(result[0] != 0) // si le premier "value" est nul, c'est que l'on a pas de nouveau rÃ©sultat
+	if(result[0] != 0) // si le premier "value" est nul, c'est que l'on a pas de nouveau résultat
 	{
 		int k=0;
 		tab->subGrid->successLaunch++;
@@ -139,11 +139,11 @@ void fillGrid(unsigned char* result, threadParameters* tab)
 		{
 			usleep(100);
 		}
-		sudoku->locked = true; //dÃ¨s que l'on a accès, on lock
-		while(result[3*k] != 0) //on Ã©crit dans la grille tout ce qu'on a trouvÃ© (Tant que les "values" sont non nulles)
+		sudoku->locked = true; //dès que l'on a accès, on lock
+		while(result[3*k] != 0) //on écrit dans la grille tout ce qu'on a trouvé (Tant que les "values" sont non nulles)
 		{
 			sudoku->grid[ result[3*k + 1] ][ result[3*k + 2] ] = result[3*k]; // grid[i][j] = value
-			sudoku->emptyBlocks--; // on dÃ©cremente la variable globale emptyBlocks
+			sudoku->emptyBlocks--; // on décremente la variable globale emptyBlocks
 			k++;
 		}
 		

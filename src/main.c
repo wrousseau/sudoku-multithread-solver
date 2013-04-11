@@ -54,7 +54,7 @@ int main (int argc, char **argv)
 	writeGrid(resultPath, grid, blocksPerSquare);
 	deleteSudoku(sudoku);
 
-	end = clock();
+	end = clock();printf("%d\n",(int) end - begin );
 	time_spent = (double) (end - begin) / CLOCKS_PER_SEC; 
 	printf("Temps d'Exécution : %f secondes\n" ,time_spent);
 	exit( EXIT_SUCCESS );

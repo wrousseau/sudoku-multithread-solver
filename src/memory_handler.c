@@ -133,10 +133,6 @@ void initSubGrid( subGrid* subGrid , int threadNumber, int numberOfBlocks )
 		} 
 	}
 
-	//par -> emptyBlocks = sudoku -> emptyBlocks;
-	//printf("i : %d  ||  n : %d\n", i, n);
-	//printf("x : %d  ||  y : %d\n", par->x, par->y);
-
 	initChoices( subGrid, widthSubSquare ); // solver.c
 }
 
