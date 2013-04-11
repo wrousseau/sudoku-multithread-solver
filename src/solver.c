@@ -11,17 +11,17 @@ extern Sudoku* sudoku;
 
 void *threadStart(void* arg)
 {
-	int iDebug = 7;
+	int iDebug = 6;
 	threadParameters* tab = (threadParameters*) arg;
 
-	int n = tab->numberOfBlocks, i = tab->threadNumber;
+	int n = tab->numberOfBlocks, i = tab->threadNumber, counter = 0;
 	unsigned char* result;
 	initSubGrid( tab->subGrid , tab->threadNumber, tab->numberOfBlocks );
 
 	int subSquareWidth;
 	subSquareWidth = (int) sqrt( tab->numberOfBlocks );
 
-	while( sudoku -> emptyBlocks != 0 && i == iDebug)
+	while( sudoku -> emptyBlocks != 0 )//&& i == iDebug)
 	{
 		tab->subGrid->emptyBlocks = sudoku->emptyBlocks; // On met à jour notre copie de Nv
 
@@ -32,7 +32,7 @@ void *threadStart(void* arg)
 
 		// Remplissage la grid si besoin est grâce aux résultats stockés dans result
 		fillGrid(result, tab);
-		usleep(1000000);
+		//usleep(1000000);
 		/******* DEBUG ne pas supprimer*****/
 		if ( i == iDebug ) 
 		{ 
@@ -57,10 +57,11 @@ void *threadStart(void* arg)
 		/********* ---- **********/
 
 		free(result);
-		while(tab->subGrid->emptyBlocks == sudoku->emptyBlocks) // Si il n'y a pas eu de modif, on attend
+		while(tab->subGrid->emptyBlocks == sudoku->emptyBlocks && counter > 1) // Si il n'y a pas eu de modif, on attend
 		{
 			usleep(1000);
 		}
+		counter++;
 	}
 
 	return NULL;
@@ -86,6 +87,7 @@ void searchChoices(unsigned char **result , subGrid* currentSubGrid, int numberO
 				(*result)[3*resultPointer] = tmp; // la valeur
 				(*result)[3*resultPointer + 1] = currentSubGrid->y * subSquareWidth + i; // On stocke "l'ordonnÃ©e" de la case
 				(*result)[3*resultPointer + 2] = currentSubGrid->x * subSquareWidth + j; // On stocke "l'abcisse" de la case
+				resultPointer++;
 			}
 		}
 	}
@@ -140,7 +142,6 @@ void fillGrid(unsigned char* result, threadParameters* tab)
 		sudoku->locked = true; //dÃ¨s que l'on a accès, on lock
 		while(result[3*k] != 0) //on Ã©crit dans la grille tout ce qu'on a trouvÃ© (Tant que les "values" sont non nulles)
 		{
-			printf("%d\n", (int) result[3*k] ); //DEBUG
 			sudoku->grid[ result[3*k + 1] ][ result[3*k + 2] ] = result[3*k]; // grid[i][j] = value
 			sudoku->emptyBlocks--; // on dÃ©cremente la variable globale emptyBlocks
 			k++;
@@ -167,7 +168,7 @@ unsigned char checkBlock(Solution *s, subGrid* subGrid, unsigned char y, unsigne
 		if(result == 0)
 		{
 			// renvoie la valeur résultat si un nombre n'apparait qu'une fois dans un sous carré, 0 sinon
-			//result = getSingletonChoices(s, thread, i, j);
+			result = getSingletonChoices(s, subGrid, y, x);
 		}
 		return result;
 	}
@@ -206,8 +207,8 @@ unsigned char getNaiveChoices(Solution *s, subGrid* thread, unsigned char y, uns
 		{
 			s->choices[tmp-1] = 0;
 			s->N_sol--;
-		}printf("%d ",(int) result ); // debug
-	}printf("     %d&%d\n", (int) result, (int) s->N_sol); //debug
+		}
+	}
 
 	if(s->N_sol == 1)
 	{
@@ -233,22 +234,7 @@ unsigned char getNaiveChoices(Solution *s, subGrid* thread, unsigned char y, uns
 unsigned char getSingletonChoices(Solution* s, subGrid* thread, unsigned char y, unsigned char x)
 {
 	unsigned char n = sudoku->blocksPerSquare;
-	//int ik = -1, jk = -1, k=1;
-	int subSquareWidth = (int) sqrt( n );
-
-	/*while( ik == -1 || jk == -1) //on repère le point en haut à gauche du sous carré qui nous interesse
-	{
-		unsigned char tmp = subSquareWidth * k;
-		if(i < tmp)
-		{
-			ik = tmp - subSquareWidth;
-		}
-		if(j < tmp)
-		{
-			jk = tmp - subSquareWidth;
-		}
-		k++;
-	}*/
+	int subSquareWidth = (int) sqrt( sudoku->blocksPerSquare );
 
 	char tmp[255] = {0}; // dans tmp on met la somme des tableaux "choices" du sous carré où N_sol > 1
 
@@ -261,18 +247,12 @@ unsigned char getSingletonChoices(Solution* s, subGrid* thread, unsigned char y,
 			{
 				for( int k = 0 ; k < n ; k++) // On fait la somme sur tout le tableau
 				{
-					printf("%d ", tmp[k]);//debug
 					tmp[k] = tmp[k] + thread->solution[i][j].choices[k];
 				}
-				printf("\n");//debug
 			}				
 		}
 	}
-	for( int i = 0 ; i < n ; i++) // DEBUG
-	{
-		printf("%d ", (int) tmp[i]); // DEBUG
-	}printf("     :%d%d   :%d\n\n", thread->x, thread->y, s->N_sol);// debug
-
+	
 	for( int i = 0 ; i < n ; i++) // On vérifie s'il y a un singleton dans le sous carré
 	{
 		if(tmp[i] == 1 && s->choices[i] == 1) 
