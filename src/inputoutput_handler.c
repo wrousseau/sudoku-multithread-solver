@@ -113,6 +113,56 @@ void printGrid()
 
 
 
+void printStatsThread(threadParameters* par, double time_spent)
+{
+	FILE* file;
+	if(time_spent == 0) // écriture des données sur les threads
+	{
+		if(par->threadNumber == 0) //Pour la première série, on efface l'ancien fichier et on met l'en tête
+		{
+			file = fopen("ThreadsStats.txt", "w");
+			if(file == NULL)
+			{
+				perror("Erreur lors de l'écriture des stats : ");
+				exit( EXIT_FAILURE );
+			}
+			fprintf(file, "###### STATISTIQUES DES THREADS ######\n");
+			fprintf(file, "%d Threads\n\n\n", par->numberOfBlocks );
+		}
+		else // sinon on ne fait qu'ajouter les données -> append
+		{
+			file = fopen("ThreadsStats.txt", "a");
+			if(file == NULL)
+			{
+				perror("Erreur lors de l'écriture des stats : ");
+				exit( EXIT_FAILURE );
+			}
+		}		
+
+		fprintf(file, "Thread %d :\n -------------------\n", par->threadNumber);
+		fprintf(file, "Nombre de cases du carré secondaire restant à résoudre au démarrage : %d\n", par->subGrid->emptyAtBoot );
+		fprintf(file, "Nombre total de solutions à explorer au démarrage : %d\n", par->subGrid->solAtBoot);
+		fprintf(file, "Nombre d’exécutions : %d\n", par->subGrid->numberLaunch);
+		fprintf(file, "Nombre d’exécutions utiles : %d\n", par->subGrid->successLaunch);
+		fprintf(file, "Nombre d’exécutions inutiles : %d\n\n\n", par->subGrid->failLaunch);
+	}
+	else // écriture du temps d'execution à la fin du fichier
+	{
+		file = fopen("ThreadsStats.txt", "a");
+		if(file == NULL)
+		{
+			perror("Erreur lors de l'écriture des stats : ");
+			exit( EXIT_FAILURE );
+		}
+		fprintf(file, "Temps d'Exécution : %f secondes\n" ,time_spent);
+	}
+
+	fclose(file);
+	return;
+}
+
+
+
 
 
 

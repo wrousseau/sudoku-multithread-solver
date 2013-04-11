@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <unistd.h>
+#include <sys/time.h>
 #include "structures.h"
 #include "memory_handler.h"
 #include "solver.h"
@@ -14,7 +15,7 @@ void *threadStart(void* arg)
 	int iDebug = 6;
 	threadParameters* tab = (threadParameters*) arg;
 
-	int n = tab->numberOfBlocks, i = tab->threadNumber, counter = 0;
+	int n = tab->numberOfBlocks, i = tab->threadNumber, counter = 0, wait = 0;
 	unsigned char* result;
 	initSubGrid( tab->subGrid , tab->threadNumber, tab->numberOfBlocks );
 
@@ -32,11 +33,10 @@ void *threadStart(void* arg)
 
 		// Remplissage la grid si besoin est grâce aux résultats stockés dans result
 		fillGrid(result, tab);
-		//usleep(1000000);
 		/******* DEBUG ne pas supprimer*****/
-		if ( i == iDebug ) 
+		if ( 1)//i == iDebug ) 
 		{ 
-			for(int p = 0 ; p < n ; p++)
+			/*for(int p = 0 ; p < n ; p++)
 			{
 				printf ( "%d %d %d\n" , result[3*p] , result[3*p+1] , result[3*p+2] );
 			}
@@ -50,17 +50,24 @@ void *threadStart(void* arg)
 					}
 					printf("   >%d\n", (int) tab->subGrid->solution[p][m].N_sol);
 				}
-			}
+			}*/
 			printGrid();
-			printf("grid :%d   global:%d\n",tab->subGrid->emptyBlocks, sudoku->emptyBlocks);
+			printf("grid%d :%d   global:%d\n", i, tab->subGrid->emptyBlocks, sudoku->emptyBlocks);
 		}
 		/********* ---- **********/
 
 		free(result);
-		while(tab->subGrid->emptyBlocks == sudoku->emptyBlocks && counter > 1) // Si il n'y a pas eu de modif, on attend
+		usleep(1000000);
+		while(tab->subGrid->emptyBlocks == sudoku->emptyBlocks && counter > 0) // Si il n'y a pas eu de modif, on attend
 		{
+			wait++;
 			usleep(1000);
+			if(wait > 20)
+			{
+				break;
+			}
 		}
+		wait = 0;
 		counter++;
 	}
 
@@ -116,6 +123,7 @@ void initChoices(subGrid* currentSubGrid, int subSquareWidth)
 			}
 			else // Si on ne connait pas la valeur (0), on active tous les choix et on met N_sol à n
 			{
+				currentSubGrid->emptyAtBoot++; // Stats
 				s->N_sol = n ;
 				for( int k = 0 ; k < n ; k++)
 				{
@@ -124,6 +132,7 @@ void initChoices(subGrid* currentSubGrid, int subSquareWidth)
 			}
 		}
 	}
+	currentSubGrid->solAtBoot = currentSubGrid->emptyAtBoot; // Stats
 }
 
 
@@ -191,6 +200,7 @@ unsigned char getNaiveChoices(Solution *s, subGrid* thread, unsigned char y, uns
 		{
 			s->choices[tmp-1] = 0; // ... On élimine ce choix
 			s->N_sol--; // on décrémente N_sol
+			thread->solAtBoot++; // Stats
 		}
 
 		//... Vertical ...
@@ -199,6 +209,7 @@ unsigned char getNaiveChoices(Solution *s, subGrid* thread, unsigned char y, uns
 		{
 			s->choices[tmp-1] = 0;
 			s->N_sol--;
+			thread->solAtBoot++; // Stats
 		}
 
 		//... Dans le sous carré
@@ -207,6 +218,7 @@ unsigned char getNaiveChoices(Solution *s, subGrid* thread, unsigned char y, uns
 		{
 			s->choices[tmp-1] = 0;
 			s->N_sol--;
+			thread->solAtBoot++; // Stats
 		}
 	}
 

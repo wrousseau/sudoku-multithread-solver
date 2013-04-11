@@ -6,6 +6,7 @@
 
 #include "structures.h"
 #include "solver.h"
+#include "inputoutput_handler.h"
 
 extern Sudoku* sudoku;
 
@@ -105,6 +106,7 @@ void launchThreads( subGrid** threadsAdresses, int blocksPerSquare)
                 perror ( "Erreur dans pthread_join" );
                 exit ( EXIT_FAILURE );
         }
+        printStatsThread( &(arg[i]), 0);
 	}
     return;
 }
@@ -119,6 +121,8 @@ void initSubGrid( subGrid* subGrid , int threadNumber, int numberOfBlocks )
 	subGrid -> successLaunch = 0;
 	subGrid -> failLaunch = 0;
 	subGrid -> numberLaunch = 0;
+	subGrid -> solAtBoot = 0;
+	subGrid -> emptyAtBoot = 0;
 	if( ( subGrid -> solution = (Solution**) malloc(widthSubSquare * sizeof (Solution*)) ) == NULL) // création de la matrice Solution en local
 	{
 		perror("Problème de Malloc ");

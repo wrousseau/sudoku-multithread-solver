@@ -19,7 +19,8 @@ typedef struct{
 typedef struct{
 	pthread_t thread;
 	int emptyBlocks;
-	int solBoot;
+	int solAtBoot;
+	int emptyAtBoot;
 	int numberLaunch;
 	int successLaunch;
 	int failLaunch;

@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <pthread.h>
-#include <time.h>
 #include <string.h>
 #include <sys/time.h>
 #include "structures.h"
@@ -57,6 +56,7 @@ int main (int argc, char **argv)
 
 	gettimeofday( &timeEnd, NULL);
 	time_spent = ((double) (timeEnd.tv_usec - timeStart.tv_usec)) / 1000000;
+	printStatsThread(NULL, time_spent);
 	printf("Temps d'Exécution : %f secondes\n" ,time_spent);
 	exit( EXIT_SUCCESS );
 }
