@@ -3,6 +3,7 @@
 #include <pthread.h>
 #include <time.h>
 #include <string.h>
+#include <sys/time.h>
 #include "structures.h"
 #include "memory_handler.h"
 #include "inputoutput_handler.h"
@@ -21,9 +22,9 @@ int main (int argc, char **argv)
 		exit ( EXIT_SUCCESS );
 	}
 
-	clock_t begin, end;
+	struct timeval timeStart, timeEnd;
 	double time_spent;
-	begin = clock();
+	gettimeofday( &timeStart, NULL);
 
 	unsigned char** grid; // Déclaration du double pointeur de la matrice représentant la grille de jeu
 	unsigned char blocksPerSquare;
@@ -54,8 +55,8 @@ int main (int argc, char **argv)
 	writeGrid(resultPath, grid, blocksPerSquare);
 	deleteSudoku(sudoku);
 
-	end = clock();printf("%d\n",(int) end - begin );
-	time_spent = (double) (end - begin) / CLOCKS_PER_SEC; 
+	gettimeofday( &timeEnd, NULL);
+	time_spent = ((double) (timeEnd.tv_usec - timeStart.tv_usec)) / 1000000;
 	printf("Temps d'Exécution : %f secondes\n" ,time_spent);
 	exit( EXIT_SUCCESS );
 }

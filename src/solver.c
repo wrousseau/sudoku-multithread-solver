@@ -27,7 +27,7 @@ void *threadStart(void* arg)
 
 		//searchChoices cherche toutes les nouvelles solutions à mettre dans grid, et stocke le(s) résultat(s) dans result
 		//result : tableau regroupant en bloc 3 unsigned char : value, l'abcisse et l'ordonnée de la case pour compléter la grille. Si value = 0, pas de nouvelle valeur
-		initResult(&result , tab -> numberOfBlocks);
+		initResult(&result , tab -> numberOfBlocks);// ??????
 		searchChoices(&result, tab -> subGrid, tab->numberOfBlocks, subSquareWidth);
 
 		// Remplissage la grid si besoin est grâce aux résultats stockés dans result
