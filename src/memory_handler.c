@@ -110,23 +110,23 @@ void launchThreads( subGrid** threadsAdresses, int blocksPerSquare)
 }
 
 
-void initSubGrid( subGrid* par , int i, int n )
+void initSubGrid( subGrid* subGrid , int threadNumber, int numberOfBlocks )
 {
 	int widthSubSquare;
-	widthSubSquare = (int) sqrt( n );
-	par -> x = i % widthSubSquare;
-	par -> y = i / widthSubSquare;
-	par -> successLaunch = 0;
-	par -> failLaunch = 0;
-	par -> numberLaunch = 0;
-	if( (par -> s = (Solution**) malloc(widthSubSquare * sizeof (Solution*)) ) == NULL) // création de la matrice Solution en local
+	widthSubSquare = (int) sqrt( numberOfBlocks );
+	subGrid -> x = threadNumber % widthSubSquare;
+	subGrid -> y = threadNumber / widthSubSquare;
+	subGrid -> successLaunch = 0;
+	subGrid -> failLaunch = 0;
+	subGrid -> numberLaunch = 0;
+	if( ( subGrid -> solution = (Solution**) malloc(widthSubSquare * sizeof (Solution*)) ) == NULL) // création de la matrice Solution en local
 	{
 		perror("Problème de Malloc ");
 		exit ( EXIT_FAILURE );
 	} 
-	for (int k = 0 ; k < widthSubSquare ; k++)
+	for (int i = 0 ; i < widthSubSquare ; i++)
 	{
-		if( (par -> s[k] = (Solution*) malloc(widthSubSquare * sizeof (Solution)) ) == NULL)
+		if( ( subGrid -> solution[i] = (Solution*) malloc(widthSubSquare * sizeof (Solution)) ) == NULL)
 		{
 			perror("Problème de Malloc ");
 			exit ( EXIT_FAILURE );
@@ -137,9 +137,7 @@ void initSubGrid( subGrid* par , int i, int n )
 	//printf("i : %d  ||  n : %d\n", i, n);
 	//printf("x : %d  ||  y : %d\n", par->x, par->y);
 
-	initChoices( par, n, widthSubSquare );
-
-	return;
+	initChoices( subGrid, widthSubSquare ); // solver.c
 }
 
 void initResult(unsigned char **result, int numberOfBlocks)
