@@ -28,7 +28,7 @@ void createGrid ( unsigned char blocksPerSquare , unsigned char*** gridAdress )
 	}	
 }
 
-void deleteSudoku(Sudoku* sudoku)
+void deleteSudoku()
 {
 	for( int i = 0; i < sudoku->blocksPerSquare ; i++)
 	{
@@ -39,10 +39,10 @@ void deleteSudoku(Sudoku* sudoku)
 }
 
 
-void initSudoku( Sudoku** sudokuAdress, unsigned char** grid, unsigned char blocksPerSquare)
+void initSudoku( unsigned char** grid, unsigned char blocksPerSquare)
 {
 	
-	*sudokuAdress = malloc (sizeof( Sudoku ));
+	sudoku = malloc (sizeof( Sudoku ));
 	if(sudoku == NULL)
 	{
 		perror( "Erreur de Mémoire (Malloc)" );
@@ -50,18 +50,18 @@ void initSudoku( Sudoku** sudokuAdress, unsigned char** grid, unsigned char bloc
 	}	
 	//Calcul de emptyBlocks
 	int i, j;
-	(*sudokuAdress)->emptyBlocks = 0;
-	(*sudokuAdress)->blocksPerSquare = blocksPerSquare;
-	(*sudokuAdress)->grid = grid;
-	(*sudokuAdress)->locked = false;
+	sudoku->emptyBlocks = 0;
+	sudoku->blocksPerSquare = blocksPerSquare;
+	sudoku->grid = grid;
+	sudoku->locked = false;
 	
-	for(i = 0 ; i < (*sudokuAdress)->blocksPerSquare ; i++)
+	for(i = 0 ; i < sudoku->blocksPerSquare ; i++)
 	{
-		for(j = 0 ; j < (*sudokuAdress)->blocksPerSquare ; j++)
+		for(j = 0 ; j < sudoku->blocksPerSquare ; j++)
 		{
 			if(grid[i][j] == 0)
 			{
-				(*sudokuAdress)->emptyBlocks++;
+				sudoku->emptyBlocks++;
 			}
 		}
 	}
@@ -69,7 +69,7 @@ void initSudoku( Sudoku** sudokuAdress, unsigned char** grid, unsigned char bloc
 }
 
 
-void launchThreads( subGrid** threadsAdresses, int blocksPerSquare)
+void launchThreads( subGrid** subGridsAdresses, int blocksPerSquare)
 {
 	threadParameters *arg;
 	arg = malloc ( blocksPerSquare*sizeof(threadParameters) );
@@ -79,8 +79,8 @@ void launchThreads( subGrid** threadsAdresses, int blocksPerSquare)
 		exit ( EXIT_FAILURE );
 	}
 
-	*threadsAdresses = malloc( blocksPerSquare * sizeof( subGrid ) );
-	if( *threadsAdresses == NULL )
+	*subGridsAdresses = malloc( blocksPerSquare * sizeof( subGrid ) );
+	if( *subGridsAdresses == NULL )
 	{
 		perror( "Erreur de Mémoire (Malloc)" );
 		exit( EXIT_FAILURE );
@@ -91,8 +91,8 @@ void launchThreads( subGrid** threadsAdresses, int blocksPerSquare)
 	{
 		arg[i].threadNumber = i;
 		arg[i].numberOfBlocks = blocksPerSquare;
-		arg[i].subGrid = &( ( *threadsAdresses )[i] ); //Adresse de la subGrid concernée
-		if ( pthread_create( &( (*threadsAdresses)[i].thread ) , NULL, threadStart , &(arg[i]) ) != 0 )
+		arg[i].subGrid = &( ( *subGridsAdresses )[i] ); //Adresse de la subGrid concernée
+		if ( pthread_create( &( (*subGridsAdresses)[i].thread ) , NULL, threadStart , &(arg[i]) ) != 0 )
         {
                 perror( "Erreur dans pthread_create" );
                 exit( EXIT_FAILURE );
@@ -101,7 +101,7 @@ void launchThreads( subGrid** threadsAdresses, int blocksPerSquare)
 	}
 	for( int i = 0 ; i < blocksPerSquare ; i++ )
 	{
-		if ( pthread_join ( (*threadsAdresses)[i].thread , NULL ) != 0 )
+		if ( pthread_join ( (*subGridsAdresses)[i].thread , NULL ) != 0 )
         {
                 perror ( "Erreur dans pthread_join" );
                 exit ( EXIT_FAILURE );

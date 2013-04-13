@@ -49,7 +49,7 @@ void readGrid ( char* filePath , unsigned char** grid , unsigned char n )
 	{
 		for(tmp = strtok(buf," \t\n"), j = 0;
 			tmp != NULL;
-			tmp = strtok(NULL, " \t\n") , j++ ) // On parcours chaques nombres séparés par un espace.
+			tmp = strtok(NULL, " \t\n") , j++ ) // On parcours chaque nombres séparés par un espace.
 		{
 			number = atoi(tmp);
 			if(number > 255)

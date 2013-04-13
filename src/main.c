@@ -1,3 +1,11 @@
+/**
+ * \file main.c
+ * \brief Programme Multi-Thread de Résolution de Grilles de Sudoku
+ * \author Simon Manchel & Woody Rousseau
+ * \version 0.1
+ * \date 13 avril 2013
+ */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <pthread.h>
@@ -8,11 +16,23 @@
 #include "inputoutput_handler.h"
 #include "solver.h"
 
-
+// Le pointeur vers le Sudoku est une variable globale
 Sudoku* sudoku;
 
+/**
+ * \fn void displayUsage()
+ * \brief Affiche comment doit être utilisée le programme (Usage)
+ * \return EXIT_SUCCESS - Arrêt normal du programme.
+ */
 void displayUsage();
 
+/**
+ * \fn int main (int argc, char **argv)
+ * \brief Entrée du programme
+ * \param argc Nombre d'arguments passés au programme (en comptant son nom)
+ * \param argv Tableau des chaînes de caractères passées en argument au programme
+ * \return EXIT_SUCCESS - Arrêt normal du programme.
+ */
 int main (int argc, char **argv)
 {
 	if ( ( argc >= 2) && strcmp ( argv[1] , "help\n" ) ) 
