@@ -1,4 +1,4 @@
-/**
+/**	
  * \file structures.h
  * \brief Header des structures utilisées dans le programme
  * \author Simon Manchel & Woody Rousseau

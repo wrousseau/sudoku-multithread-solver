@@ -33,31 +33,8 @@ void *threadStart(void* arg)
 
 		// Remplissage la grid si besoin est grâce aux résultats stockés dans result
 		fillGrid(result, tab);
-		/******* DEBUG ne pas supprimer*****/
-		if ( 1)//i == iDebug ) 
-		{ 
-			/*for(int p = 0 ; p < n ; p++)
-			{
-				printf ( "%d %d %d\n" , result[3*p] , result[3*p+1] , result[3*p+2] );
-			}
-			for ( int p = 0; p < subSquareWidth; p++)
-			{
-				for ( int m = 0 ; m < subSquareWidth ; m++)
-				{
-					for ( int q = 0 ; q < n; q++)
-					{
-						printf("%d ", (int) tab->subGrid->solution[p][m].choices[q]);
-					}
-					printf("   >%d\n", (int) tab->subGrid->solution[p][m].N_sol);
-				}
-			}*/
-			printGrid();
-			printf("grid%d :%d   global:%d\n", i, tab->subGrid->emptyBlocks, sudoku->emptyBlocks);
-		}
-		/********* ---- **********/
 
 		free(result);
-		usleep(1000000);
 		while(tab->subGrid->emptyBlocks == sudoku->emptyBlocks && counter > 0 && wait <20) // Si il n'y a pas eu de modif, on attend
 		{
 			wait++;
@@ -165,15 +142,31 @@ void fillGrid(unsigned char* result, threadParameters* tab)
 
 unsigned char checkBlock(Solution *s, subGrid* subGrid, unsigned char y, unsigned char x)
 {
-	unsigned char result;
+	unsigned char result=0;
+	int subSquareWidth = (int)sqrt(sudoku->blocksPerSquare);
 	if( s->N_sol != 1) // Si N_sol = 1, on connait déjà la solution, on retourne alors 0 pour dire que l'on a rien trouvé de nouveau
 	{
 		// renvoie la valeur résultat si la case concerné n'a qu'un choix de nombre disponible, 0 sinon
-		result = getNaiveChoices(s, subGrid, y, x);printf("NAIVE\n");
-		if(result == 0)
+		result = getNaiveChoices(s, subGrid, y, x);
+
+		if(result != 0) // Alors on efface ce choix des possibilités ...
+		{
+			for(int p =0 ; p < subSquareWidth ; p++)
+			{
+				for(int q=0 ; q < subSquareWidth ; q++)
+				{	
+					// ... sauf pour la case concernée évidemment
+					if( !( (y % subSquareWidth == p) && (x % subSquareWidth == q) ) )
+					{
+						subGrid->solution[p][q].choices[result - 1] = 0; // Donc ce choix n'est plus possible dans les autres cases
+					}
+				}
+			}
+		}
+		else
 		{
 			// renvoie la valeur résultat si un nombre n'apparait qu'une fois dans un sous carré, 0 sinon
-			result = getSingletonChoices(s, subGrid, y, x);printf("SINGLETON\n");
+			result = getSingletonChoices(s, subGrid, y, x);
 		}
 		return result;
 	}
@@ -196,7 +189,10 @@ unsigned char getNaiveChoices(Solution *s, subGrid* thread, unsigned char y, uns
 		{
 			s->choices[tmp-1] = 0; // ... On élimine ce choix
 			s->N_sol--; // on décrémente N_sol
-			thread->solAtBoot++; // Stats
+			if(thread->numberLaunch > 0)
+			{
+				thread->solAtBoot++; // Stats
+			}
 		}
 
 		//... Vertical ...
@@ -205,7 +201,10 @@ unsigned char getNaiveChoices(Solution *s, subGrid* thread, unsigned char y, uns
 		{
 			s->choices[tmp-1] = 0;
 			s->N_sol--;
-			thread->solAtBoot++; // Stats
+			if(thread->numberLaunch > 0)
+			{
+				thread->solAtBoot++; // Stats
+			}
 		}
 
 		//... Dans le sous carré
@@ -214,7 +213,10 @@ unsigned char getNaiveChoices(Solution *s, subGrid* thread, unsigned char y, uns
 		{
 			s->choices[tmp-1] = 0;
 			s->N_sol--;
-			thread->solAtBoot++; // Stats
+			if(thread->numberLaunch > 0)
+			{
+				thread->solAtBoot++; // Stats
+			}
 		}
 	}
 
@@ -274,9 +276,9 @@ unsigned char getSingletonChoices(Solution* s, subGrid* thread, unsigned char y,
 			}
 			s->choices[i] = 1;
 
-			for(int p = 0 ; p < subSquareWidth ; p++) // on regarde si une case avec cette valeur n'existe pas déjà dans le sous carré
+			for(int p = 0 ; p < n ; p++) // on regarde si une case avec cette valeur n'existe pas déjà dans le sous carré
 			{
-				if(sudoku -> grid[y * subSquareWidth + p/subSquareWidth][x * subSquareWidth + p%subSquareWidth] == i+1)
+				if(sudoku -> grid[y][x] == i+1)
 				{
 					return 0; // dans ce cas, notre résultat est faux : on renvoie 0
 				}
