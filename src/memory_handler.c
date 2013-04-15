@@ -87,6 +87,9 @@ void launchThreads( subGrid** subGridsAdresses, int blocksPerSquare)
 	}
 
 	printf ( "Lancement de %d threads\n" , blocksPerSquare );
+
+	pthread_mutex_init (&(sudoku->mutex), NULL); // Initialisation du Mutex
+
 	for( int i = 0 ; i < blocksPerSquare ; i++ )
 	{
 		arg[i].threadNumber = i;

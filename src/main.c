@@ -35,6 +35,26 @@ void displayUsage();
  */
 int main (int argc, char **argv)
 {
+	struct sigaction act;
+
+		/* une affectation de pointeur de fonction */
+		/* c’est equivalent d’ecrire act.sa_handler = &TraiteSignal */
+		act.sa_handler = SIG_IGN;
+		/* le masque (ensemble) des signaux non pris en compte est mis */
+		/* a l’ensemble vide (aucun signal n’est ignore) */
+		sigemptyset(&act.sa_mask);
+		/* Les appels systemes interrompus par un signal */
+		/* seront repris au retour du gestionnaire de signal */
+		act.sa_flags = SA_RESTART;
+		/* enregistrement de la reaction au SIGUSR1 */
+		if ( sigaction(SIGUSR1,&act,NULL) == -1 ) 
+		{
+		/* perror permet d’afficher la chaine avec */
+		/* le message d’erreur de la derniere commande */
+			perror("sigaction");
+			exit(EXIT_FAILURE);
+		}
+	
 	if ( ( argc >= 2) && (strcmp ( argv[1] , "help\n" ) == 0) ) 
 	{
 		displayUsage();

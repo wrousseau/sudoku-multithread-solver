@@ -18,9 +18,9 @@
  */
 typedef struct{
 	unsigned char** grid; /*!< Grille (Tableau 2D) à traiter */
-	int emptyBlocks; /*!< Nombre de cases non résolues */
+	int emptyBlocks; /*!< Nombre de cases non résolues dans le Sudoku */
 	unsigned char blocksPerSquare; /*!< Nombre de cases par carré */
-	bool locked; /*!< Indique si la grille est verouillée */
+	pthread_mutex_t mutex; /*!< Verrou Mutex */
 } Sudoku;
 
 /**

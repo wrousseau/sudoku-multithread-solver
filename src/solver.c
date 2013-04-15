@@ -3,12 +3,18 @@
 #include <math.h>
 #include <unistd.h>
 #include <sys/time.h>
+#include <signal.h>
+#include <pthread.h>
+
 #include "structures.h"
 #include "memory_handler.h"
 #include "solver.h"
 #include "inputoutput_handler.h"
 
+
 extern Sudoku* sudoku;
+static pthread_mutex_t signalMutex; 
+
 
 void *threadStart(void* arg)
 {
@@ -57,14 +63,41 @@ void *threadStart(void* arg)
 		/********* ---- **********/
 
 		free(result);
-		usleep(1000000);
-		while(tab->subGrid->emptyBlocks == sudoku->emptyBlocks && counter > 0 && wait <20) // Si il n'y a pas eu de modif, on attend
+
+		struct sigaction act;
+
+		/* une affectation de pointeur de fonction */
+		/* c’est equivalent d’ecrire act.sa_handler = &TraiteSignal */
+		act.sa_handler = SIG_IGN;
+		/* le masque (ensemble) des signaux non pris en compte est mis */
+		/* a l’ensemble vide (aucun signal n’est ignore) */
+		sigemptyset(&act.sa_mask);
+		/* Les appels systemes interrompus par un signal */
+		/* seront repris au retour du gestionnaire de signal */
+		act.sa_flags = SA_RESTART;
+		/* enregistrement de la reaction au SIGUSR1 */
+		if ( sigaction(SIGUSR1,&act,NULL) == -1 ) 
+		{
+		/* perror permet d’afficher la chaine avec */
+		/* le message d’erreur de la derniere commande */
+			perror("sigaction");
+			exit(EXIT_FAILURE);
+		}
+		for(;;)
+		{
+		sigset_t mask;
+		sigemptyset(&mask);
+		sigaddset(&mask, SIGUSR1);
+		sigsuspend(&mask);
+		}
+
+		/*while(tab->subGrid->emptyBlocks == sudoku->emptyBlocks && counter > 0 && wait <20) // Si il n'y a pas eu de modif, on attend
 		{
 			wait++;
 			usleep(1000);
 		}
 		wait = 0;
-		counter++;
+		counter++; */
 	}
 
 	return NULL;
@@ -141,19 +174,24 @@ void fillGrid(unsigned char* result, threadParameters* tab)
 	{
 		int k=0;
 		tab->subGrid->successLaunch++;
-		while(sudoku->locked == true) // on attend que la grille soit unlocked
-		{
-			usleep(100);
-		}
-		sudoku->locked = true; //dès que l'on a accès, on lock
+
+		pthread_mutex_lock (&(sudoku->mutex)); /* on attent de pouvoir ouvrir le verrou , le thread d'écriture est lancé avant la lecture */
 		while(result[3*k] != 0) //on écrit dans la grille tout ce qu'on a trouvé (Tant que les "values" sont non nulles)
 		{
 			sudoku->grid[ result[3*k + 1] ][ result[3*k + 2] ] = result[3*k]; // grid[i][j] = value
 			sudoku->emptyBlocks--; // on décremente la variable globale emptyBlocks
+			pthread_mutex_lock (&(signalMutex)); /* on attent de pouvoir ouvrir le verrou , le thread d'écriture est lancé avant la lecture */
+			if ( kill(getpid(),SIGUSR1) == -1 )
+			{
+				perror( "Envoi du signal");
+				exit ( EXIT_FAILURE );
+			}
+			pthread_mutex_unlock(&(signalMutex)); /* on attent de pouvoir ouvrir le verrou , le thread d'écriture est lancé avant la lecture */
+
 			k++;
 		}
-		
-		sudoku->locked = false;// on Unlock la grille globale
+
+		pthread_mutex_unlock(&(sudoku->mutex)); /* on attent de pouvoir ouvrir le verrou , le thread d'écriture est lancé avant la lecture */
 	}
 	else
 	{
@@ -173,7 +211,7 @@ unsigned char checkBlock(Solution *s, subGrid* subGrid, unsigned char y, unsigne
 		if(result == 0)
 		{
 			// renvoie la valeur résultat si un nombre n'apparait qu'une fois dans un sous carré, 0 sinon
-			result = getSingletonChoices(s, subGrid, y, x);printf("SINGLETON\n");
+			//result = getSingletonChoices(s, subGrid, y, x);printf("SINGLETON\n");
 		}
 		return result;
 	}
