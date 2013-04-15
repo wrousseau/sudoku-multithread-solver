@@ -12,7 +12,7 @@ extern Sudoku* sudoku;
 
 void *threadStart(void* arg)
 {
-	int iDebug = 6;
+	int iDebug = 4;
 	threadParameters* tab = (threadParameters*) arg;
 
 	int n = tab->numberOfBlocks, i = tab->threadNumber, counter = 0, wait = 0;
@@ -58,14 +58,10 @@ void *threadStart(void* arg)
 
 		free(result);
 		usleep(1000000);
-		while(tab->subGrid->emptyBlocks == sudoku->emptyBlocks && counter > 0) // Si il n'y a pas eu de modif, on attend
+		while(tab->subGrid->emptyBlocks == sudoku->emptyBlocks && counter > 0 && wait <20) // Si il n'y a pas eu de modif, on attend
 		{
 			wait++;
 			usleep(1000);
-			if(wait > 20)
-			{
-				break;
-			}
 		}
 		wait = 0;
 		counter++;
@@ -98,6 +94,7 @@ void searchChoices(unsigned char **result , subGrid* currentSubGrid, int numberO
 			}
 		}
 	}
+	(*result)[3*resultPointer] = 0; // On marque la fin de result
 }
 
 void initChoices(subGrid* currentSubGrid, int subSquareWidth)
@@ -172,12 +169,11 @@ unsigned char checkBlock(Solution *s, subGrid* subGrid, unsigned char y, unsigne
 	if( s->N_sol != 1) // Si N_sol = 1, on connait déjà la solution, on retourne alors 0 pour dire que l'on a rien trouvé de nouveau
 	{
 		// renvoie la valeur résultat si la case concerné n'a qu'un choix de nombre disponible, 0 sinon
-		result = getNaiveChoices(s, subGrid, y, x); 
-
+		result = getNaiveChoices(s, subGrid, y, x);printf("NAIVE\n");
 		if(result == 0)
 		{
 			// renvoie la valeur résultat si un nombre n'apparait qu'une fois dans un sous carré, 0 sinon
-			result = getSingletonChoices(s, subGrid, y, x);
+			result = getSingletonChoices(s, subGrid, y, x);printf("SINGLETON\n");
 		}
 		return result;
 	}
@@ -277,6 +273,14 @@ unsigned char getSingletonChoices(Solution* s, subGrid* thread, unsigned char y,
 				s->choices[j] = 0;
 			}
 			s->choices[i] = 1;
+
+			for(int p = 0 ; p < subSquareWidth ; p++) // on regarde si une case avec cette valeur n'existe pas déjà dans le sous carré
+			{
+				if(sudoku -> grid[y * subSquareWidth + p/subSquareWidth][x * subSquareWidth + p%subSquareWidth] == i+1)
+				{
+					return 0; // dans ce cas, notre résultat est faux : on renvoie 0
+				}
+			}
 
 			return i+1; // On retourne la valeur trouvée de la case
 		}

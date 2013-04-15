@@ -15,7 +15,7 @@ void displayUsage();
 
 int main (int argc, char **argv)
 {
-	if ( ( argc >= 2) && strcmp ( argv[1] , "help\n" ) ) 
+	if ( ( argc >= 2) && (strcmp ( argv[1] , "help\n" ) == 0) ) 
 	{
 		displayUsage();
 		exit ( EXIT_SUCCESS );
