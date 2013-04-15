@@ -68,7 +68,7 @@ int main (int argc, char **argv)
 	blocksPerSquare = readDimensions(filePath);
 	createGrid(blocksPerSquare, &grid);
 	readGrid(filePath, grid, blocksPerSquare);
-	initSudoku( &sudoku, grid, blocksPerSquare);
+	initSudoku( grid, blocksPerSquare);
 	launchThreads( &threads, blocksPerSquare);
 	
 	writeGrid(resultPath, grid, blocksPerSquare);
