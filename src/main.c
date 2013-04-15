@@ -35,7 +35,7 @@ void displayUsage();
  */
 int main (int argc, char **argv)
 {
-	if ( ( argc >= 2) && (strcmp ( argv[1] , "help\n" ) == 0) ) 
+	if ( ( argc >= 2) && (strcmp ( argv[1] , "help" ) == 0) ) 
 	{
 		displayUsage();
 		exit ( EXIT_SUCCESS );
@@ -69,7 +69,7 @@ int main (int argc, char **argv)
 	createGrid(blocksPerSquare, &grid);
 	readGrid(filePath, grid, blocksPerSquare);
 	initSudoku( grid, blocksPerSquare);
-	launchThreads( &threads, blocksPerSquare);
+	launchThreads( &threads );
 	
 	writeGrid(resultPath, grid, blocksPerSquare);
 	deleteSudoku(sudoku);
@@ -84,7 +84,7 @@ int main (int argc, char **argv)
 void displayUsage()
 {
 	fprintf(stdout , "Usage :\n");
-	fprintf(stdout, "\"./exe/sudoku\" / \"make run\" : Default avec \"sudoku.in.txt\" en entrée.\n");
+	fprintf(stdout, "\"./exe/sudoku\" / \"make run\" : Default avec \"sudoku.in.txt\" en entrée et sudoku.out.txt en sortie.\n");
 	fprintf(stdout, "\"./exe/sudoku [INPUT]\" : Grille d\'entrée spécifiée.\n");
 	fprintf(stdout, "\"./exe/sudoku [INPUT] [OUTPUT]\" : Grilles d\'entrée et de sortie spécifiées.\n");
 	exit ( EXIT_SUCCESS );
