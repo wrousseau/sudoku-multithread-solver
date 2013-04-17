@@ -38,8 +38,6 @@ void *threadStart(void* arg)
 		// Remplissage la grid si besoin est grâce aux résultats stockés dans result
 		fillGrid(result, tab);
 
-		free(result);
-
  		bool timeOut = false;
  		while(!timeOut)
  		{

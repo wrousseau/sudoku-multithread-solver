@@ -114,7 +114,7 @@ void printGrid()
 
 
 void printStatsThread(threadParameters* par, double time_spent)
-{
+{	
 	FILE* file;
 	if(time_spent == 0) // écriture des données sur les threads
 	{
@@ -137,7 +137,7 @@ void printStatsThread(threadParameters* par, double time_spent)
 				perror("Erreur lors de l'écriture des stats : ");
 				exit( EXIT_FAILURE );
 			}
-		}		
+		}
 
 		fprintf(file, "Thread %d :\n -------------------\n", par->threadNumber);
 		fprintf(file, "Nombre de cases du carré secondaire restant à résoudre au démarrage : %d\n", par->subGrid->emptyAtBoot );
@@ -147,7 +147,7 @@ void printStatsThread(threadParameters* par, double time_spent)
 		fprintf(file, "Nombre d’exécutions inutiles : %d\n\n\n", par->subGrid->failLaunch);
 	}
 	else // écriture du temps d'execution à la fin du fichier
-	{
+	{printf("test\n");	
 		file = fopen("ThreadsStats.txt", "a");
 		if(file == NULL)
 		{

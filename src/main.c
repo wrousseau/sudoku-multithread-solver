@@ -80,7 +80,7 @@ int main (int argc, char **argv)
 	// Fin de l'horloge pour le temps d'éxécution
 	timeEnd = clock();
 	time_spent = (double)(timeEnd - timeStart) / CLOCKS_PER_SEC;
-
+	printf("pute\n");
 	// Ecriture des statistiques dans le fichier ThreadsStats.txt
 	printStatsThread(NULL, time_spent);
 	printf("Temps d'Exécution : %f secondes\n" ,time_spent);
