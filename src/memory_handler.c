@@ -67,8 +67,9 @@ void initSudoku( unsigned char** grid, unsigned char blocksPerSquare)
 }
 
 
-void launchThreads( subGrid** subGridsAdresses, int blocksPerSquare)
+void launchThreads( subGrid** subGridsAdresses )
 {
+	int blocksPerSquare = sudoku->blocksPerSquare;
 	threadParameters *arg;
 	arg = malloc ( blocksPerSquare*sizeof(threadParameters) );
 	if ( arg == NULL )
@@ -109,14 +110,16 @@ void launchThreads( subGrid** subGridsAdresses, int blocksPerSquare)
                 exit ( EXIT_FAILURE );
         }
         printStatsThread( &(arg[i]), 0);
+        cleanSubGrids( &(arg[i]));
 	}
+	free(arg);
     return;
 }
 
 
-void initSubGrid( subGrid* subGrid , int threadNumber, int numberOfBlocks )
+void initSubGrid( subGrid* subGrid , int threadNumber )
 {
-	int widthSubSquare;
+	int widthSubSquare, numberOfBlocks = sudoku->blocksPerSquare;
 	widthSubSquare = (int) sqrt( numberOfBlocks );
 	subGrid -> x = threadNumber % widthSubSquare;
 	subGrid -> y = threadNumber / widthSubSquare;
@@ -139,13 +142,13 @@ void initSubGrid( subGrid* subGrid , int threadNumber, int numberOfBlocks )
 		} 
 	}
 
-	initChoices( subGrid, widthSubSquare ); // solver.c
+	initChoices( subGrid ); // solver.c
 }
 
-void initResult(unsigned char **result, int numberOfBlocks)
+void initResult(unsigned char **result)
 {
 	// On alloue l'espace maximum nécessaire à result (3 variables pour un résultat)
-	if( (*result = malloc((numberOfBlocks+1)*3*sizeof(unsigned char)) ) == NULL)
+	if( (*result = malloc((sudoku->blocksPerSquare + 1)*3*sizeof(unsigned char)) ) == NULL)
 	{
 		perror ( "Malloc : " );
 		exit ( EXIT_FAILURE );
@@ -162,6 +165,25 @@ struct timespec getExpiration()
     return ts;
 }
 
+
+void cleanSubGrids( threadParameters* parameters)
+{
+	int widthSubSquare = sqrt(sudoku->blocksPerSquare);
+
+	for(int i = 0 ; i < widthSubSquare ; i++)
+	{
+		for(int j = 0 ; j < widthSubSquare ; j++)
+		{
+			free(parameters->subGrid->solution[i][j].choices);
+		}
+		free(parameters->subGrid->solution[i]);
+	}
+	free(parameters->subGrid->solution);
+	free(parameters->subGrid);
+	free(parameters);
+	
+	return;
+}
 
 
 

@@ -73,8 +73,7 @@ int main (int argc, char **argv)
 	createGrid(blocksPerSquare, &grid); // On alloue la mémoire pour la grille
 	readGrid(filePath, grid, blocksPerSquare); // On remplit la grille avec le fichier texte d'entrée
 	initSudoku( grid, blocksPerSquare); // On alloue la mémoire du Sudoku (variable globale)
-	launchThreads( &threads, blocksPerSquare); // Lancement des threads
-	
+	launchThreads( &threads ); // Lancement des threads
 	writeGrid(resultPath, grid, blocksPerSquare); // On écrit dans le fichier de sortie
 	deleteSudoku(sudoku); // On désalloue la mémoire du Sudoku
 
@@ -92,7 +91,7 @@ int main (int argc, char **argv)
 void displayUsage()
 {
 	fprintf(stdout , "Usage :\n");
-	fprintf(stdout, "\"./exe/sudoku\" / \"make run\" : Default avec \"sudoku.in.txt\" en entrée.\n");
+	fprintf(stdout, "\"./exe/sudoku\" / \"make run\" : Default avec \"sudoku.in.txt\" en entrée et sudoku.out.txt en sortie.\n");
 	fprintf(stdout, "\"./exe/sudoku [INPUT]\" : Grille d\'entrée spécifiée.\n");
 	fprintf(stdout, "\"./exe/sudoku [INPUT] [OUTPUT]\" : Grilles d\'entrée et de sortie spécifiées.\n");
 	

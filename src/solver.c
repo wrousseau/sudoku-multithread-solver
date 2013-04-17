@@ -19,24 +19,21 @@ pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 
 void *threadStart(void* arg)
 {
-	int iDebug = 4;
 	threadParameters* tab = (threadParameters*) arg;
 
-	int n = tab->numberOfBlocks, i = tab->threadNumber, counter = 0, wait = 0;
+	int counter = 0, wait = 0;
 	unsigned char* result;
-	initSubGrid( tab->subGrid , tab->threadNumber, tab->numberOfBlocks );
-
-	int subSquareWidth;
-	subSquareWidth = (int) sqrt( tab->numberOfBlocks );
+	initSubGrid( tab->subGrid , tab->threadNumber );
+	initResult(&result );
 
 	while( sudoku -> emptyBlocks != 0 )
 	{
 		tab->subGrid->emptyBlocks = sudoku->emptyBlocks; // On met à jour notre copie de Nv
 
-		//searchChoices cherche toutes les nouvelles solutions à mettre dans grid, et stocke le(s) résultat(s) dans result
-		//result : tableau regroupant en bloc 3 unsigned char : value, l'abcisse et l'ordonnée de la case pour compléter la grille. Si value = 0, pas de nouvelle valeur
-		initResult(&result , tab -> numberOfBlocks);// ??????
-		searchChoices(&result, tab -> subGrid, tab->numberOfBlocks, subSquareWidth);
+		// searchChoices cherche toutes les nouvelles solutions à mettre dans grid, et stocke le(s) résultat(s) dans result
+		// result : tableau regroupant en bloc 3 unsigned char : value, l'abcisse et l'ordonnée de la case pour compléter la grille.
+		// Si value = 0, pas de nouvelle valeur
+		searchChoices(&result, tab -> subGrid);
 
 		// Remplissage la grid si besoin est grâce aux résultats stockés dans result
 		fillGrid(result, tab);
@@ -53,25 +50,19 @@ void *threadStart(void* arg)
 			}
 			pthread_mutex_unlock(&mut);
 		}
-		/*
-		while(tab->subGrid->emptyBlocks == sudoku->emptyBlocks && counter > 0 && wait <20) // Si il n'y a pas eu de modif, on attend
-
-		{
-			wait++;
-			usleep(1000);
-		}
-		wait = 0;
-		counter++; */
 
 	}
+	free(result);
 
 	return NULL;
 }
 
-void searchChoices(unsigned char **result , subGrid* currentSubGrid, int numberOfBlocks, int subSquareWidth)
+void searchChoices(unsigned char **result , subGrid* currentSubGrid)
 {
 	int resultPointer = 0;
-	unsigned char tmp;
+	unsigned char tmp, numberOfBlocks, subSquareWidth;
+	numberOfBlocks = sudoku->blocksPerSquare;
+	subSquareWidth = (unsigned char) sqrt(numberOfBlocks);
 	
 	for( int i = 0 ; i < subSquareWidth ; i++) // Pour chaque case, on cherche
 	{
@@ -95,8 +86,10 @@ void searchChoices(unsigned char **result , subGrid* currentSubGrid, int numberO
 	(*result)[3*resultPointer] = 0; // On marque la fin de result
 }
 
-void initChoices(subGrid* currentSubGrid, int subSquareWidth)
+void initChoices( subGrid* currentSubGrid )
 {
+	int subSquareWidth = (int) sqrt(sudoku->blocksPerSquare);
+
 	for( int i = 0 ; i < subSquareWidth ; i++) // Pour chaque case, on cherche
 	{
 		for( int j = 0 ; j < subSquareWidth ; j++)
@@ -161,14 +154,14 @@ void fillGrid(unsigned char* result, threadParameters* tab)
 }
 
 
-unsigned char checkBlock(Solution *s, subGrid* subGrid, unsigned char y, unsigned char x)
+unsigned char checkBlock(Solution *s, subGrid* subGrid, unsigned char yGlobal, unsigned char xGlobal)
 {
 	unsigned char result=0;
 	int subSquareWidth = (int)sqrt(sudoku->blocksPerSquare);
 	if( s->N_sol != 1) // Si N_sol = 1, on connait déjà la solution, on retourne alors 0 pour dire que l'on a rien trouvé de nouveau
 	{
 		// renvoie la valeur résultat si la case concerné n'a qu'un choix de nombre disponible, 0 sinon
-		result = getNaiveChoices(s, subGrid, y, x);
+		result = getNaiveChoices(s, subGrid, yGlobal, xGlobal);
 
 		if(result != 0) // Alors on efface ce choix des possibilités ...
 		{
@@ -177,7 +170,7 @@ unsigned char checkBlock(Solution *s, subGrid* subGrid, unsigned char y, unsigne
 				for(int q=0 ; q < subSquareWidth ; q++)
 				{	
 					// ... sauf pour la case concernée évidemment
-					if( !( (y % subSquareWidth == p) && (x % subSquareWidth == q) ) )
+					if( !( (yGlobal % subSquareWidth == p) && (xGlobal % subSquareWidth == q) ) )
 					{
 						subGrid->solution[p][q].choices[result - 1] = 0; // Donc ce choix n'est plus possible dans les autres cases
 					}
@@ -187,7 +180,7 @@ unsigned char checkBlock(Solution *s, subGrid* subGrid, unsigned char y, unsigne
 		else
 		{
 			// renvoie la valeur résultat si un nombre n'apparait qu'une fois dans un sous carré, 0 sinon
-			result = getSingletonChoices(s, subGrid, y, x);
+			result = getSingletonChoices(s, subGrid, yGlobal, xGlobal);
 		}
 		return result;
 	}
@@ -195,7 +188,7 @@ unsigned char checkBlock(Solution *s, subGrid* subGrid, unsigned char y, unsigne
 }
 
 
-unsigned char getNaiveChoices(Solution *s, subGrid* thread, unsigned char y, unsigned char x)
+unsigned char getNaiveChoices(Solution *s, subGrid* thread, unsigned char yGlobal, unsigned char xGlobal)
 {
 	unsigned char n = sudoku->blocksPerSquare, result = 0;
 	int subSquareWidth = (int) sqrt( n );
@@ -205,7 +198,7 @@ unsigned char getNaiveChoices(Solution *s, subGrid* thread, unsigned char y, uns
 		unsigned char tmp;
 
 		//... Horizontal ...
-		tmp = sudoku -> grid[y][i];
+		tmp = sudoku -> grid[yGlobal][i];
 		if( tmp != 0 && s->choices[tmp-1] != 0) // si on regarde une case connue dans le grille principale, et qu'on ne le savait pas ...
 		{
 			s->choices[tmp-1] = 0; // ... On élimine ce choix
@@ -217,7 +210,7 @@ unsigned char getNaiveChoices(Solution *s, subGrid* thread, unsigned char y, uns
 		}
 
 		//... Vertical ...
-		tmp = sudoku -> grid[i][x];
+		tmp = sudoku -> grid[i][xGlobal];
 		if( tmp != 0 && s->choices[tmp-1] != 0)
 		{
 			s->choices[tmp-1] = 0;
@@ -262,7 +255,7 @@ unsigned char getNaiveChoices(Solution *s, subGrid* thread, unsigned char y, uns
 }
 
 
-unsigned char getSingletonChoices(Solution* s, subGrid* thread, unsigned char y, unsigned char x)
+unsigned char getSingletonChoices(Solution* s, subGrid* thread, unsigned char yGlobal, unsigned char xGlobal)
 {
 	unsigned char n = sudoku->blocksPerSquare;
 	int subSquareWidth = (int) sqrt( sudoku->blocksPerSquare );
@@ -299,7 +292,7 @@ unsigned char getSingletonChoices(Solution* s, subGrid* thread, unsigned char y,
 
 			for(int p = 0 ; p < n ; p++) // on regarde si une case avec cette valeur n'existe pas déjà dans le sous carré
 			{
-				if(sudoku -> grid[y][x] == i+1)
+				if(sudoku -> grid[yGlobal][xGlobal] == i+1)
 				{
 					return 0; // dans ce cas, notre résultat est faux : on renvoie 0
 				}

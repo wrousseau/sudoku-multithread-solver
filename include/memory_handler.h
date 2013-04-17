@@ -41,7 +41,7 @@ void initSudoku( unsigned char** grid, unsigned char blocksPerSquare);
  * \param: subGridsAdresses Double pointeur vers les sous-grilles
  * \param: blocksPerSquare Nombre de blocs par sous-carré
  */
-void launchThreads( subGrid** subGridsAdresses, int blocksPerSquare);
+void launchThreads( subGrid** subGridsAdresses );
 
 /**
  * \fn void initSubGrid( subGrid* subGrid , int threadNumber, int numberOfBlocks )
@@ -50,7 +50,7 @@ void launchThreads( subGrid** subGridsAdresses, int blocksPerSquare);
  * \param: threadNumber Numéro du thread considéré
  * \param: numberOfBlocks Nombre de cases par sous-grille
  */
-void initSubGrid( subGrid* subGrid , int threadNumber, int numberOfBlocks );
+void initSubGrid( subGrid* subGrid , int threadNumber );
 
 /**
  * \fn void initResult(unsigned char **result, int numberOfBlocks)
@@ -58,7 +58,9 @@ void initSubGrid( subGrid* subGrid , int threadNumber, int numberOfBlocks );
  * \param: result Double pointeur vers les résultats (chaînes de caractères)
  * \param: numberOfBlocks Nombre de cases par sous-grille
  */
-void initResult(unsigned char **result, int numberOfBlocks);
+void initResult(unsigned char **result );
+
+void cleanSubGrids( threadParameters* parameters);
 
 struct timespec getExpiration();
 
