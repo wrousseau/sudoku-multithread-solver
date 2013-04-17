@@ -1,3 +1,4 @@
+#define _BSD_SOURCE
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -25,7 +26,8 @@ void *threadStart(void* arg)
 	unsigned char* result;
 	initSubGrid( tab->subGrid , tab->threadNumber );
 	initResult(&result );
-
+	unsigned int test;
+	usleep(test);
 	while( sudoku -> emptyBlocks != 0 )
 	{
 		tab->subGrid->emptyBlocks = sudoku->emptyBlocks; // On met à jour notre copie de Nv

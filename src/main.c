@@ -11,6 +11,8 @@
 #include <pthread.h>
 #include <string.h>
 #include <sys/time.h>
+#include <sys/timeb.h>
+
 #include "structures.h"
 #include "memory_handler.h"
 #include "inputoutput_handler.h"
@@ -43,9 +45,16 @@ int main (int argc, char **argv)
 	}
 
 	// Démarrage de l'horloge pour mesurer le temps d'exécution
-	clock_t timeStart, timeEnd;
+	/*clock_t timeStart, timeEnd;
 	timeStart = clock();
+	double time_spent;*/
+	//struct timeval timeStart, timeEnd;
+	struct timeb timeTmp;
+	ftime(&timeTmp);
+	double timeStart, timeEnd;
 	double time_spent;
+	timeStart = ( (double) timeTmp.time) + ( (double) timeTmp.millitm/1000);
+	//gettimeofday( &timeStart, NULL);
 
 	// Déclaration de la grille et de variables dont il faudra allouer la mémoire
 	unsigned char** grid; 
@@ -78,12 +87,17 @@ int main (int argc, char **argv)
 	deleteSudoku(sudoku); // On désalloue la mémoire du Sudoku
 
 	// Fin de l'horloge pour le temps d'éxécution
-	timeEnd = clock();
-	time_spent = (double)(timeEnd - timeStart) / CLOCKS_PER_SEC;
+	/*timeEnd = clock();
+	time_spent = (double)(timeEnd - timeStart) / CLOCKS_PER_SEC;*/
+	//gettimeofday( &timeEnd, NULL);
+	//time_spent = ((double) (timeEnd.tv_usec - timeStart.tv_usec)) / 1000000;
+	ftime(&timeTmp);
+	timeEnd = ( (double) timeTmp.time) + ( (double) timeTmp.millitm/1000);
+	time_spent = timeEnd - timeStart;
 	printf("pute\n");
 	// Ecriture des statistiques dans le fichier ThreadsStats.txt
 	printStatsThread(NULL, time_spent);
-	printf("Temps d'Exécution : %f secondes\n" ,time_spent);
+	printf("Temps d'Exécution : %0.3f secondes\n" ,time_spent);
 
 	exit( EXIT_SUCCESS );
 }

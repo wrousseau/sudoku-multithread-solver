@@ -115,7 +115,7 @@ void printGrid()
 
 void printStatsThread(threadParameters* par, double time_spent)
 {	
-	FILE* file;
+	FILE* file;printf("%f\n", time_spent);
 	if(time_spent == 0) // écriture des données sur les threads
 	{
 		if(par->threadNumber == 0) //Pour la première série, on efface l'ancien fichier et on met l'en tête
@@ -154,7 +154,7 @@ void printStatsThread(threadParameters* par, double time_spent)
 			perror("Erreur lors de l'écriture des stats : ");
 			exit( EXIT_FAILURE );
 		}
-		fprintf(file, "Temps d'Exécution : %f secondes\n" ,time_spent);
+		fprintf(file, "Temps d'Exécution : %0.3f secondes\n" ,time_spent);
 	}
 
 	fclose(file);
