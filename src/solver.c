@@ -84,6 +84,11 @@ void searchChoices(unsigned char **result , subGrid* currentSubGrid)
 		}
 	}
 	(*result)[3*resultPointer] = 0; // On marque la fin de result
+
+	if(currentSubGrid->numberLaunch == 0) // On compte les solutions au démarrage après le premier calcul
+	{
+		countSolution(currentSubGrid);
+	}
 }
 
 void initChoices( subGrid* currentSubGrid )
@@ -120,7 +125,6 @@ void initChoices( subGrid* currentSubGrid )
 			}
 		}
 	}
-	currentSubGrid->solAtBoot = currentSubGrid->emptyAtBoot; // Stats
 }
 
 
@@ -203,10 +207,6 @@ unsigned char getNaiveChoices(Solution *s, subGrid* thread, unsigned char yGloba
 		{
 			s->choices[tmp-1] = 0; // ... On élimine ce choix
 			s->N_sol--; // on décrémente N_sol
-			if(thread->numberLaunch > 0)
-			{
-				thread->solAtBoot++; // Stats
-			}
 		}
 
 		//... Vertical ...
@@ -215,10 +215,6 @@ unsigned char getNaiveChoices(Solution *s, subGrid* thread, unsigned char yGloba
 		{
 			s->choices[tmp-1] = 0;
 			s->N_sol--;
-			if(thread->numberLaunch > 0)
-			{
-				thread->solAtBoot++; // Stats
-			}
 		}
 
 		//... Dans le sous carré
@@ -227,10 +223,6 @@ unsigned char getNaiveChoices(Solution *s, subGrid* thread, unsigned char yGloba
 		{
 			s->choices[tmp-1] = 0;
 			s->N_sol--;
-			if(thread->numberLaunch > 0)
-			{
-				thread->solAtBoot++; // Stats
-			}
 		}
 	}
 
@@ -306,3 +298,25 @@ unsigned char getSingletonChoices(Solution* s, subGrid* thread, unsigned char yG
 }
 
 
+void countSolution(subGrid* currentSubGrid)	
+{
+	int subSquareWidth = sqrt(sudoku->blocksPerSquare);
+	currentSubGrid->solAtBoot = 0;
+
+	for(int i = 0 ; i < subSquareWidth ; i++)
+	{
+		for(int j = 0 ; j < subSquareWidth ; j++)
+		{
+			if(currentSubGrid->solution[i][j].N_sol != 1) // si on connait la case au début, ça ne compte pas
+			{
+				for(int k = 0 ; k < sudoku->blocksPerSquare ; k++) //on regarde le nombre de solution par case
+				{
+					if(currentSubGrid->solution[i][j].choices[k] == 1)
+					{
+						currentSubGrid->solAtBoot++;
+					}
+				}
+			}
+		}
+	}
+}

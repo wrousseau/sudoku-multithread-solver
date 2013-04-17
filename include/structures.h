@@ -41,7 +41,7 @@ typedef struct{
  */
 typedef struct{
 	pthread_t thread; /*!< Thread correspondant au sous-carré*/
-	int emptyBlocks; /*!< Nombre de cases vides dans la sous-grille */
+	int emptyBlocks; /*!< Nombre de cases vides dans le sudoku stocké en local */
 	int solAtBoot; /*!< Nombre de solutions à explorer au démarrage */
 	int emptyAtBoot; /*!< Nombre de cases du sous-carré restant à résoudre au démarrage */
 	int numberLaunch; /*!< Nombre d'éxécutions */

@@ -115,7 +115,7 @@ void printGrid()
 
 void printStatsThread(threadParameters* par, double time_spent)
 {	
-	FILE* file;printf("%f\n", time_spent);
+	FILE* file;
 	if(time_spent == 0) // écriture des données sur les threads
 	{
 		if(par->threadNumber == 0) //Pour la première série, on efface l'ancien fichier et on met l'en tête

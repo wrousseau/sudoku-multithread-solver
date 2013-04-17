@@ -72,6 +72,11 @@ unsigned char getNaiveChoices(Solution *s, subGrid* currentSubGrid, unsigned cha
  */
 unsigned char getSingletonChoices(Solution *s, subGrid* currentSubGrid, unsigned char yGlobal, unsigned char xGlobal);
 
-
+/**
+ * \fn void countSolution(subGrid* currentSubGrid)
+ * \brief: Compte le nombre de solution au démarrage
+ * \param: currentSubGrid Pointeur vers la subGrid utilisée par le pointeur
+ */
+void countSolution(subGrid* currentSubGrid);
 
 #endif
