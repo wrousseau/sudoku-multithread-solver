@@ -161,15 +161,11 @@ void cleanSubGrids( threadParameters* parameters)
 
 	for(int i = 0 ; i < widthSubSquare ; i++)
 	{
-		for(int j = 0 ; j < widthSubSquare ; j++)
-		{
-			free(parameters->subGrid->solution[i][j].choices);
-		}
 		free(parameters->subGrid->solution[i]);
 	}
 	free(parameters->subGrid->solution);
-	free(parameters->subGrid);
-	free(parameters);
+	//free(parameters->subGrid);
+	//free(parameters);
 	
 	return;
 }
