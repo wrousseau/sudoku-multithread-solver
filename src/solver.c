@@ -3,12 +3,19 @@
 #include <math.h>
 #include <unistd.h>
 #include <sys/time.h>
+#include <signal.h>
+#include <pthread.h>
+#include <errno.h>
+
 #include "structures.h"
 #include "memory_handler.h"
 #include "solver.h"
 #include "inputoutput_handler.h"
 
+
 extern Sudoku* sudoku;
+pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 
 void *threadStart(void* arg)
 {
@@ -31,13 +38,19 @@ void *threadStart(void* arg)
 		// Remplissage la grid si besoin est grâce aux résultats stockés dans result
 		fillGrid(result, tab);
 
-		while(tab->subGrid->emptyBlocks == sudoku->emptyBlocks && counter > 0 && wait <20) // Si il n'y a pas eu de modif, on attend
-		{
-			wait++;
-			usleep(1000);
+		free(result);
+
+ 		bool timeOut = false;
+ 		while(!timeOut)
+ 		{
+			pthread_mutex_lock(&mut);
+			if ( pthread_cond_timedwait(&cond, &mut, &(tab->timedwaitExpiration) ) == ETIMEDOUT )
+			{
+				timeOut = true;
+			}
+			pthread_mutex_unlock(&mut);
 		}
-		wait = 0;
-		counter++;
+
 	}
 	free(result);
 
@@ -119,19 +132,19 @@ void fillGrid(unsigned char* result, threadParameters* tab)
 	{
 		int k=0;
 		tab->subGrid->successLaunch++;
-		while(sudoku->locked == true) // on attend que la grille soit unlocked
-		{
-			usleep(100);
-		}
-		sudoku->locked = true; //dès que l'on a accès, on lock
+
+		pthread_mutex_lock (&(sudoku->mutex)); /* on attent de pouvoir ouvrir le verrou , le thread d'écriture est lancé avant la lecture */
 		while(result[3*k] != 0) //on écrit dans la grille tout ce qu'on a trouvé (Tant que les "values" sont non nulles)
 		{
 			sudoku->grid[ result[3*k + 1] ][ result[3*k + 2] ] = result[3*k]; // grid[i][j] = value
 			sudoku->emptyBlocks--; // on décremente la variable globale emptyBlocks
+			pthread_mutex_lock(&mut);
+			pthread_cond_broadcast(&cond);
+			pthread_mutex_unlock(&mut);
 			k++;
 		}
-		
-		sudoku->locked = false;// on Unlock la grille globale
+
+		pthread_mutex_unlock(&(sudoku->mutex)); /* on attent de pouvoir ouvrir le verrou , le thread d'écriture est lancé avant la lecture */
 	}
 	else
 	{
@@ -291,4 +304,5 @@ unsigned char getSingletonChoices(Solution* s, subGrid* thread, unsigned char yG
 
 	return 0;
 }
+
 

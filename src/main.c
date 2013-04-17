@@ -35,20 +35,24 @@ void displayUsage();
  */
 int main (int argc, char **argv)
 {
-	if ( ( argc >= 2) && (strcmp ( argv[1] , "help" ) == 0) ) 
+	// L'utilisateur demande de l'aide pour l'utilisation du programme
+	if ( ( argc >= 2) && (strcmp ( argv[1] , "help\n" ) == 0) ) 
 	{
 		displayUsage();
 		exit ( EXIT_SUCCESS );
 	}
 
-	struct timeval timeStart, timeEnd;
+	// Démarrage de l'horloge pour mesurer le temps d'exécution
+	clock_t timeStart, timeEnd;
+	timeStart = clock();
 	double time_spent;
-	gettimeofday( &timeStart, NULL);
 
-	unsigned char** grid; // Déclaration du double pointeur de la matrice représentant la grille de jeu
+	// Déclaration de la grille et de variables dont il faudra allouer la mémoire
+	unsigned char** grid; 
 	unsigned char blocksPerSquare;
 	subGrid* threads = NULL;
 
+	// Utilisation des arguments de path d'entrée-sortie (avec cas par défault)
 	char *filePath = "sudoku.in.txt", *resultPath = "sudoku.out.txt";
 	switch (argc)
 	{
@@ -65,19 +69,22 @@ int main (int argc, char **argv)
 			displayUsage();
 	}
 
-	blocksPerSquare = readDimensions(filePath);
-	createGrid(blocksPerSquare, &grid);
-	readGrid(filePath, grid, blocksPerSquare);
-	initSudoku( grid, blocksPerSquare);
-	launchThreads( &threads );
-	
-	writeGrid(resultPath, grid, blocksPerSquare);
-	deleteSudoku(sudoku);
+	blocksPerSquare = readDimensions(filePath); // On obtient les dimensions de la grille
+	createGrid(blocksPerSquare, &grid); // On alloue la mémoire pour la grille
+	readGrid(filePath, grid, blocksPerSquare); // On remplit la grille avec le fichier texte d'entrée
+	initSudoku( grid, blocksPerSquare); // On alloue la mémoire du Sudoku (variable globale)
+	launchThreads( &threads ); // Lancement des threads
+	writeGrid(resultPath, grid, blocksPerSquare); // On écrit dans le fichier de sortie
+	deleteSudoku(sudoku); // On désalloue la mémoire du Sudoku
 
-	gettimeofday( &timeEnd, NULL);
-	time_spent = ((double) (timeEnd.tv_usec - timeStart.tv_usec)) / 1000000;
+	// Fin de l'horloge pour le temps d'éxécution
+	timeEnd = clock();
+	time_spent = (double)(timeEnd - timeStart) / CLOCKS_PER_SEC;
+
+	// Ecriture des statistiques dans le fichier ThreadsStats.txt
 	printStatsThread(NULL, time_spent);
 	printf("Temps d'Exécution : %f secondes\n" ,time_spent);
+
 	exit( EXIT_SUCCESS );
 }
 
@@ -87,5 +94,6 @@ void displayUsage()
 	fprintf(stdout, "\"./exe/sudoku\" / \"make run\" : Default avec \"sudoku.in.txt\" en entrée et sudoku.out.txt en sortie.\n");
 	fprintf(stdout, "\"./exe/sudoku [INPUT]\" : Grille d\'entrée spécifiée.\n");
 	fprintf(stdout, "\"./exe/sudoku [INPUT] [OUTPUT]\" : Grilles d\'entrée et de sortie spécifiées.\n");
+	
 	exit ( EXIT_SUCCESS );
 }
