@@ -60,7 +60,12 @@ void initSubGrid( subGrid* subGrid , int threadNumber );
  */
 void initResult(unsigned char **result );
 
-void cleanSubGrids( threadParameters* parameters);
+/**
+ * \fn void cleanSubGrids(threadParameters* parameters)
+ * \brief: Désalloue la mémoire de subGrid
+ * \param: parameters Structure contenant les paramètres du thread
+ */
+void cleanSubGrids( threadParameters* parameters );
 
 struct timespec getExpiration();
 

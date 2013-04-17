@@ -175,8 +175,6 @@ void cleanSubGrids( threadParameters* parameters)
 		free(parameters->subGrid->solution[i]);
 	}
 	free(parameters->subGrid->solution);
-	//free(parameters->subGrid);
-	//free(parameters);
 	
 	return;
 }
