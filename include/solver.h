@@ -65,4 +65,5 @@ unsigned char getNaiveChoices(Solution *s, subGrid* thread, unsigned char i, uns
 unsigned char getSingletonChoices(Solution *s, subGrid* thread, unsigned char i, unsigned char j);
 
 
+
 #endif

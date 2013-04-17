@@ -20,7 +20,7 @@ CC = gcc
 
 # -- Flags ----------------------
 C_INC_FLAGS = -I$(INC_PATH)
-C_CC_FLAGS = -ansi -posix -pedantic -Wall -std=c99
+C_CC_FLAGS = -ansi -posix -pedantic -Wall -std=c99 -g
 CFLAGS = $(C_CC_FLAGS) $(C_INC_FLAGS) $(LIB_INC_PATH)
 
 # -- Librairies -----------------

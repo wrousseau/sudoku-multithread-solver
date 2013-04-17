@@ -5,8 +5,7 @@
 #include <math.h>
 
 #include "structures.h"
-#include "solver.h"
-#include "inputoutput_handler.h"
+#include "memory_handler.h"
 
 extern Sudoku* sudoku;
 
@@ -53,7 +52,6 @@ void initSudoku( unsigned char** grid, unsigned char blocksPerSquare)
 	sudoku->emptyBlocks = 0;
 	sudoku->blocksPerSquare = blocksPerSquare;
 	sudoku->grid = grid;
-	sudoku->locked = false;
 	
 	for(i = 0 ; i < sudoku->blocksPerSquare ; i++)
 	{
@@ -95,6 +93,7 @@ void launchThreads( subGrid** subGridsAdresses, int blocksPerSquare)
 		arg[i].threadNumber = i;
 		arg[i].numberOfBlocks = blocksPerSquare;
 		arg[i].subGrid = &( ( *subGridsAdresses )[i] ); //Adresse de la subGrid concernée
+		arg[i].timedwaitExpiration = getExpiration();
 		if ( pthread_create( &( (*subGridsAdresses)[i].thread ) , NULL, threadStart , &(arg[i]) ) != 0 )
         {
                 perror( "Erreur dans pthread_create" );
@@ -151,6 +150,16 @@ void initResult(unsigned char **result, int numberOfBlocks)
 		perror ( "Malloc : " );
 		exit ( EXIT_FAILURE );
 	}
+}
+
+struct timespec getExpiration()
+{
+	struct timeval tv;
+    struct timespec ts;
+    gettimeofday(&tv, NULL);
+    ts.tv_sec = tv.tv_sec + 1;
+    ts.tv_nsec = 0;
+    return ts;
 }
 
 

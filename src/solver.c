@@ -5,6 +5,7 @@
 #include <sys/time.h>
 #include <signal.h>
 #include <pthread.h>
+#include <errno.h>
 
 #include "structures.h"
 #include "memory_handler.h"
@@ -13,8 +14,8 @@
 
 
 extern Sudoku* sudoku;
-static pthread_mutex_t signalMutex; 
-
+pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 
 void *threadStart(void* arg)
 {
@@ -28,7 +29,7 @@ void *threadStart(void* arg)
 	int subSquareWidth;
 	subSquareWidth = (int) sqrt( tab->numberOfBlocks );
 
-	while( sudoku -> emptyBlocks != 0 )//&& i == iDebug)
+	while( sudoku -> emptyBlocks != 0 )
 	{
 		tab->subGrid->emptyBlocks = sudoku->emptyBlocks; // On met à jour notre copie de Nv
 
@@ -39,65 +40,29 @@ void *threadStart(void* arg)
 
 		// Remplissage la grid si besoin est grâce aux résultats stockés dans result
 		fillGrid(result, tab);
-		/******* DEBUG ne pas supprimer*****/
-		if ( 1)//i == iDebug ) 
-		{ 
-			/*for(int p = 0 ; p < n ; p++)
-			{
-				printf ( "%d %d %d\n" , result[3*p] , result[3*p+1] , result[3*p+2] );
-			}
-			for ( int p = 0; p < subSquareWidth; p++)
-			{
-				for ( int m = 0 ; m < subSquareWidth ; m++)
-				{
-					for ( int q = 0 ; q < n; q++)
-					{
-						printf("%d ", (int) tab->subGrid->solution[p][m].choices[q]);
-					}
-					printf("   >%d\n", (int) tab->subGrid->solution[p][m].N_sol);
-				}
-			}*/
-			printGrid();
-			printf("grid%d :%d   global:%d\n", i, tab->subGrid->emptyBlocks, sudoku->emptyBlocks);
-		}
-		/********* ---- **********/
 
 		free(result);
 
-		struct sigaction act;
-
-		/* une affectation de pointeur de fonction */
-		/* c’est equivalent d’ecrire act.sa_handler = &TraiteSignal */
-		act.sa_handler = SIG_IGN;
-		/* le masque (ensemble) des signaux non pris en compte est mis */
-		/* a l’ensemble vide (aucun signal n’est ignore) */
-		sigemptyset(&act.sa_mask);
-		/* Les appels systemes interrompus par un signal */
-		/* seront repris au retour du gestionnaire de signal */
-		act.sa_flags = SA_RESTART;
-		/* enregistrement de la reaction au SIGUSR1 */
-		if ( sigaction(SIGUSR1,&act,NULL) == -1 ) 
-		{
-		/* perror permet d’afficher la chaine avec */
-		/* le message d’erreur de la derniere commande */
-			perror("sigaction");
-			exit(EXIT_FAILURE);
+ 		bool timeOut = false;
+ 		while(!timeOut)
+ 		{
+			pthread_mutex_lock(&mut);
+			if ( pthread_cond_timedwait(&cond, &mut, &(tab->timedwaitExpiration) ) == ETIMEDOUT )
+			{
+				timeOut = true;
+			}
+			pthread_mutex_unlock(&mut);
 		}
-		for(;;)
-		{
-		sigset_t mask;
-		sigemptyset(&mask);
-		sigaddset(&mask, SIGUSR1);
-		sigsuspend(&mask);
-		}
+		/*
+		while(tab->subGrid->emptyBlocks == sudoku->emptyBlocks && counter > 0 && wait <20) // Si il n'y a pas eu de modif, on attend
 
-		/*while(tab->subGrid->emptyBlocks == sudoku->emptyBlocks && counter > 0 && wait <20) // Si il n'y a pas eu de modif, on attend
 		{
 			wait++;
 			usleep(1000);
 		}
 		wait = 0;
 		counter++; */
+
 	}
 
 	return NULL;
@@ -180,14 +145,9 @@ void fillGrid(unsigned char* result, threadParameters* tab)
 		{
 			sudoku->grid[ result[3*k + 1] ][ result[3*k + 2] ] = result[3*k]; // grid[i][j] = value
 			sudoku->emptyBlocks--; // on décremente la variable globale emptyBlocks
-			pthread_mutex_lock (&(signalMutex)); /* on attent de pouvoir ouvrir le verrou , le thread d'écriture est lancé avant la lecture */
-			if ( kill(getpid(),SIGUSR1) == -1 )
-			{
-				perror( "Envoi du signal");
-				exit ( EXIT_FAILURE );
-			}
-			pthread_mutex_unlock(&(signalMutex)); /* on attent de pouvoir ouvrir le verrou , le thread d'écriture est lancé avant la lecture */
-
+			pthread_mutex_lock(&mut);
+			pthread_cond_broadcast(&cond);
+			pthread_mutex_unlock(&mut);
 			k++;
 		}
 
@@ -203,15 +163,31 @@ void fillGrid(unsigned char* result, threadParameters* tab)
 
 unsigned char checkBlock(Solution *s, subGrid* subGrid, unsigned char y, unsigned char x)
 {
-	unsigned char result;
+	unsigned char result=0;
+	int subSquareWidth = (int)sqrt(sudoku->blocksPerSquare);
 	if( s->N_sol != 1) // Si N_sol = 1, on connait déjà la solution, on retourne alors 0 pour dire que l'on a rien trouvé de nouveau
 	{
 		// renvoie la valeur résultat si la case concerné n'a qu'un choix de nombre disponible, 0 sinon
-		result = getNaiveChoices(s, subGrid, y, x);printf("NAIVE\n");
-		if(result == 0)
+		result = getNaiveChoices(s, subGrid, y, x);
+
+		if(result != 0) // Alors on efface ce choix des possibilités ...
+		{
+			for(int p =0 ; p < subSquareWidth ; p++)
+			{
+				for(int q=0 ; q < subSquareWidth ; q++)
+				{	
+					// ... sauf pour la case concernée évidemment
+					if( !( (y % subSquareWidth == p) && (x % subSquareWidth == q) ) )
+					{
+						subGrid->solution[p][q].choices[result - 1] = 0; // Donc ce choix n'est plus possible dans les autres cases
+					}
+				}
+			}
+		}
+		else
 		{
 			// renvoie la valeur résultat si un nombre n'apparait qu'une fois dans un sous carré, 0 sinon
-			//result = getSingletonChoices(s, subGrid, y, x);printf("SINGLETON\n");
+			result = getSingletonChoices(s, subGrid, y, x);
 		}
 		return result;
 	}
@@ -234,7 +210,10 @@ unsigned char getNaiveChoices(Solution *s, subGrid* thread, unsigned char y, uns
 		{
 			s->choices[tmp-1] = 0; // ... On élimine ce choix
 			s->N_sol--; // on décrémente N_sol
-			thread->solAtBoot++; // Stats
+			if(thread->numberLaunch > 0)
+			{
+				thread->solAtBoot++; // Stats
+			}
 		}
 
 		//... Vertical ...
@@ -243,7 +222,10 @@ unsigned char getNaiveChoices(Solution *s, subGrid* thread, unsigned char y, uns
 		{
 			s->choices[tmp-1] = 0;
 			s->N_sol--;
-			thread->solAtBoot++; // Stats
+			if(thread->numberLaunch > 0)
+			{
+				thread->solAtBoot++; // Stats
+			}
 		}
 
 		//... Dans le sous carré
@@ -252,7 +234,10 @@ unsigned char getNaiveChoices(Solution *s, subGrid* thread, unsigned char y, uns
 		{
 			s->choices[tmp-1] = 0;
 			s->N_sol--;
-			thread->solAtBoot++; // Stats
+			if(thread->numberLaunch > 0)
+			{
+				thread->solAtBoot++; // Stats
+			}
 		}
 	}
 
@@ -312,9 +297,9 @@ unsigned char getSingletonChoices(Solution* s, subGrid* thread, unsigned char y,
 			}
 			s->choices[i] = 1;
 
-			for(int p = 0 ; p < subSquareWidth ; p++) // on regarde si une case avec cette valeur n'existe pas déjà dans le sous carré
+			for(int p = 0 ; p < n ; p++) // on regarde si une case avec cette valeur n'existe pas déjà dans le sous carré
 			{
-				if(sudoku -> grid[y * subSquareWidth + p/subSquareWidth][x * subSquareWidth + p%subSquareWidth] == i+1)
+				if(sudoku -> grid[y][x] == i+1)
 				{
 					return 0; // dans ce cas, notre résultat est faux : on renvoie 0
 				}
@@ -326,4 +311,5 @@ unsigned char getSingletonChoices(Solution* s, subGrid* thread, unsigned char y,
 
 	return 0;
 }
+
 

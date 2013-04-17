@@ -9,6 +9,10 @@
 #ifndef D_MEMORY_HANDLER
 #define D_MEMORY_HANDLER
 
+#include <sys/time.h>
+#include "inputoutput_handler.h"
+#include "solver.h"
+
 /**
  * \fn void createGrid(unsigned char size, unsigned char*** gridAdress )
  * \brief: Alloue la mémoire pour la grille (tableau 2D)
@@ -55,6 +59,9 @@ void initSubGrid( subGrid* subGrid , int threadNumber, int numberOfBlocks );
  * \param: numberOfBlocks Nombre de cases par sous-grille
  */
 void initResult(unsigned char **result, int numberOfBlocks);
+
+struct timespec getExpiration();
+
 
 
 #endif

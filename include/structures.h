@@ -1,4 +1,4 @@
-/**
+/**	
  * \file structures.h
  * \brief Header des structures utilisées dans le programme
  * \author Simon Manchel & Woody Rousseau
@@ -11,6 +11,7 @@
 
 #include <stdbool.h>
 #include <pthread.h>
+#include <sys/time.h>
 
 /**
  * \struct Sudoku
@@ -58,6 +59,7 @@ typedef struct{
 typedef struct {
 	int threadNumber; /*!< Numéro du Thread */
 	int numberOfBlocks; /*!< Nombre de cases traitées par le thread */
+	struct timespec timedwaitExpiration; /*!< Argument permettant le timeout pour le réveil des threads */
 	subGrid* subGrid; /*!< Sous-Grille du Thread */
 } threadParameters;
 
