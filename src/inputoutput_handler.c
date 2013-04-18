@@ -147,7 +147,7 @@ void printStatsThread(threadParameters* par, double time_spent)
 		fprintf(file, "Nombre d’exécutions inutiles : %d\n\n\n", par->subGrid->failLaunch);
 	}
 	else // écriture du temps d'execution à la fin du fichier
-	{printf("test\n");	
+	{
 		file = fopen("ThreadsStats.txt", "a");
 		if(file == NULL)
 		{

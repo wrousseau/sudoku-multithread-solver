@@ -94,7 +94,6 @@ void launchThreads( subGrid** subGridsAdresses )
 		arg[i].threadNumber = i;
 		arg[i].numberOfBlocks = blocksPerSquare;
 		arg[i].subGrid = &( ( *subGridsAdresses )[i] ); //Adresse de la subGrid concernée
-		arg[i].timedwaitExpiration = getExpiration();
 		if ( pthread_create( &( (*subGridsAdresses)[i].thread ) , NULL, threadStart , &(arg[i]) ) != 0 )
         {
                 perror( "Erreur dans pthread_create" );
@@ -153,16 +152,6 @@ void initResult(unsigned char **result)
 		perror ( "Malloc : " );
 		exit ( EXIT_FAILURE );
 	}
-}
-
-struct timespec getExpiration()
-{
-	struct timeval tv;
-    struct timespec ts;
-    gettimeofday(&tv, NULL);
-    ts.tv_sec = tv.tv_sec + 1;
-    ts.tv_nsec = 0;
-    return ts;
 }
 
 

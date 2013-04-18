@@ -67,8 +67,5 @@ void initResult(unsigned char **result );
  */
 void cleanSubGrids( threadParameters* parameters );
 
-struct timespec getExpiration();
-
-
 
 #endif

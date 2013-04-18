@@ -94,6 +94,7 @@ int main (int argc, char **argv)
 	ftime(&timeTmp);
 	timeEnd = ( (double) timeTmp.time) + ( (double) timeTmp.millitm/1000);
 	time_spent = timeEnd - timeStart;
+	
 	// Ecriture des statistiques dans le fichier ThreadsStats.txt
 	printStatsThread(NULL, time_spent);
 	printf("Temps d'Exécution : %0.3f secondes\n" ,time_spent);

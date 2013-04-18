@@ -26,8 +26,6 @@ void *threadStart(void* arg)
 	unsigned char* result;
 	initSubGrid( tab->subGrid , tab->threadNumber );
 	initResult(&result );
-	unsigned int test;
-	usleep(test);
 	while( sudoku -> emptyBlocks != 0 )
 	{
 		tab->subGrid->emptyBlocks = sudoku->emptyBlocks; // On met à jour notre copie de Nv
@@ -40,16 +38,13 @@ void *threadStart(void* arg)
 		// Remplissage la grid si besoin est grâce aux résultats stockés dans result
 		fillGrid(result, tab);
 
- 		bool timeOut = false;
- 		while(!timeOut)
- 		{
-			pthread_mutex_lock(&mut);
-			if ( pthread_cond_timedwait(&cond, &mut, &(tab->timedwaitExpiration) ) == ETIMEDOUT )
-			{
-				timeOut = true;
-			}
-			pthread_mutex_unlock(&mut);
+		while(tab->subGrid->emptyBlocks == sudoku->emptyBlocks && counter > 0 && wait <20) // Si il n'y a pas eu de modif, on attend
+		{
+			wait++;
+			usleep(1);
 		}
+		wait = 0;
+		counter++;
 
 	}
 	free(result);
@@ -84,7 +79,6 @@ void searchChoices(unsigned char **result , subGrid* currentSubGrid)
 		}
 	}
 	(*result)[3*resultPointer] = 0; // On marque la fin de result
-
 	if(currentSubGrid->numberLaunch == 0) // On compte les solutions au démarrage après le premier calcul
 	{
 		countSolution(currentSubGrid);
@@ -142,9 +136,6 @@ void fillGrid(unsigned char* result, threadParameters* tab)
 		{
 			sudoku->grid[ result[3*k + 1] ][ result[3*k + 2] ] = result[3*k]; // grid[i][j] = value
 			sudoku->emptyBlocks--; // on décremente la variable globale emptyBlocks
-			pthread_mutex_lock(&mut);
-			pthread_cond_broadcast(&cond);
-			pthread_mutex_unlock(&mut);
 			k++;
 		}
 
@@ -298,7 +289,7 @@ unsigned char getSingletonChoices(Solution* s, subGrid* thread, unsigned char yG
 }
 
 
-void countSolution(subGrid* currentSubGrid)	
+void countSolution(subGrid* currentSubGrid)
 {
 	int subSquareWidth = sqrt(sudoku->blocksPerSquare);
 	currentSubGrid->solAtBoot = 0;

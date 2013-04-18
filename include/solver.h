@@ -79,4 +79,5 @@ unsigned char getSingletonChoices(Solution *s, subGrid* currentSubGrid, unsigned
  */
 void countSolution(subGrid* currentSubGrid);
 
+
 #endif
