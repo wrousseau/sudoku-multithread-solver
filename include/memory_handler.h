@@ -3,7 +3,7 @@
  * \brief Header des fonctions gérant la mémoire dans le programme (allocations et libération de mémoire)
  * \author Simon Manchel & Woody Rousseau
  * \version 0.1
- * \date 13 avril 2013
+ * \date 19 avril 2013
  */
 
 #ifndef D_MEMORY_HANDLER

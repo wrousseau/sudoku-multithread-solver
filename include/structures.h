@@ -3,7 +3,7 @@
  * \brief Header des structures utilisées dans le programme
  * \author Simon Manchel & Woody Rousseau
  * \version 0.1
- * \date 13 avril 2013
+ * \date 19 avril 2013
  */
 
 #ifndef D_STRUCTURES
@@ -20,7 +20,8 @@
 typedef struct{
 	unsigned char** grid; /*!< Grille (Tableau 2D) à traiter */
 	int emptyBlocks; /*!< Nombre de cases non résolues dans le Sudoku */
-	unsigned char blocksPerSquare; /*!< Nombre de cases par carré */
+	unsigned char blocksPerSquare; /*!< Nombre de cases par sous-carré */
+	bool notSolvable; /*!< booléen vrai si le programme n'arrive pas à compléter le sudoku entièrement */
 	pthread_mutex_t mutex; /*!< Verrou Mutex */
 } Sudoku;
 

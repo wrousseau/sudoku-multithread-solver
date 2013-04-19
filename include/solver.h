@@ -3,7 +3,7 @@
  * \brief Header des fonctions gérant la résolution du Sudoku et exécutées sur chaque thread
  * \author Simon Manchel & Woody Rousseau
  * \version 0.1
- * \date 13 avril 2013
+ * \date 19 avril 2013
  */
 
 #ifndef D_SOLVER
@@ -71,13 +71,6 @@ unsigned char getNaiveChoices(Solution *s, subGrid* currentSubGrid, unsigned cha
  * \return: 0 si on a rien trouvé, le nombre si on l'a trouvé
  */
 unsigned char getSingletonChoices(Solution *s, subGrid* currentSubGrid, unsigned char yGlobal, unsigned char xGlobal);
-
-/**
- * \fn void countSolution(subGrid* currentSubGrid)
- * \brief: Compte le nombre de solution au démarrage
- * \param: currentSubGrid Pointeur vers la subGrid utilisée par le pointeur
- */
-void countSolution(subGrid* currentSubGrid);
 
 
 #endif

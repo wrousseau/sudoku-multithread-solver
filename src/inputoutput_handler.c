@@ -16,7 +16,11 @@ unsigned char readDimensions( char *filePath )
 	
 	int dim; // On passe par un int en premier lieu pour voir si ça dépasse 255
 	char buf[10]; // 10 chiffres suffisent à priori
-	fgets ( buf , 10 , file );
+	if( fgets ( buf , 10 , file ) == NULL )
+	{
+		perror("Fichier d'entrée Vide");
+		exit( EXIT_FAILURE );
+	}
 	buf[strlen(buf)-1] = '\0'; // Suppression du retour chariot
 	dim = atoi ( buf );
 	if ( dim > 255 )
@@ -43,7 +47,11 @@ void readGrid ( char* filePath , unsigned char** grid , unsigned char n )
 	char buf[size];
 	char *tmp;
 
-	fgets( buf, size, file ); // On passe la première ligne
+	if( fgets( buf, size, file ) == NULL ) // On passe la première ligne
+	{
+		perror("Fichier d'entrée vide");
+		exit( EXIT_FAILURE );
+	}
 
 	while(fgets(buf, size, file) != NULL)
 	{
@@ -85,6 +93,7 @@ void writeGrid(char* resultPath, unsigned char** grid, unsigned char n)
 			fprintf(file, "%d ", grid[i][j]);
 			// Si on est pas en fin de ligne, on rajoute un espace entre 2 nombres
 		}
+		//en fin de ligne, pas d'espace après le nombre
 		fprintf(file, "%d\n", grid[i][n-1]);
 	}
 
@@ -96,7 +105,7 @@ void writeGrid(char* resultPath, unsigned char** grid, unsigned char n)
 
 
 
-void printGrid()
+void printGrid() // Spécial DEBUG
 {
 	printf("GRID empty:%d\n", sudoku->emptyBlocks);
 	for( int i = 0 ; i < sudoku->blocksPerSquare ; i++)

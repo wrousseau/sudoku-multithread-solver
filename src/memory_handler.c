@@ -52,6 +52,7 @@ void initSudoku( unsigned char** grid, unsigned char blocksPerSquare)
 	sudoku->emptyBlocks = 0;
 	sudoku->blocksPerSquare = blocksPerSquare;
 	sudoku->grid = grid;
+	sudoku->notSolvable = false;
 	
 	for(i = 0 ; i < sudoku->blocksPerSquare ; i++)
 	{
@@ -141,7 +142,7 @@ void initSubGrid( subGrid* subGrid , int threadNumber )
 		} 
 	}
 
-	initChoices( subGrid ); // solver.c
+	initChoices( subGrid ); // cf solver.c
 }
 
 void initResult(unsigned char **result)

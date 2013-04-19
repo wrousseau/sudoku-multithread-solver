@@ -3,7 +3,7 @@
  * \brief Header des fonctions gérant les entrées et sorties du programme
  * \author Simon Manchel & Woody Rousseau
  * \version 0.1
- * \date 13 avril 2013
+ * \date 19 avril 2013
  */
 
 #ifndef D_INPUTOUTPUT_HANDLER
@@ -43,7 +43,7 @@ void printGrid();
 
 /**
  * \fn printStatsThread(threadParameters* parameters, double time_spent)
- * \brief: Imprime je sais pas trop quoi
+ * \brief: Imprime les Stats des threads et le temps d'execution dans le fichier ThreadsStats.txt
  * \param: parameters Pointeur vers les paramètres du thread
  * \param: time_spent Temps pris pour l'éxécution du programme jusqu'à ce point
  */

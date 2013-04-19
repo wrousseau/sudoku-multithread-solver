@@ -3,10 +3,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <unistd.h>
-#include <sys/time.h>
-#include <signal.h>
 #include <pthread.h>
-#include <errno.h>
 
 #include "structures.h"
 #include "memory_handler.h"
@@ -16,13 +13,12 @@
 
 extern Sudoku* sudoku;
 pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 
 void *threadStart(void* arg)
 {
 	threadParameters* tab = (threadParameters*) arg;
 
-	int counter = 0, wait = 0;
+	int counter = 0, wait = 0, maxIterations = 2 * sudoku->blocksPerSquare * sudoku->blocksPerSquare;
 	unsigned char* result;
 	initSubGrid( tab->subGrid , tab->threadNumber );
 	initResult(&result );
@@ -41,10 +37,20 @@ void *threadStart(void* arg)
 		while(tab->subGrid->emptyBlocks == sudoku->emptyBlocks && counter > 0 && wait <20) // Si il n'y a pas eu de modif, on attend
 		{
 			wait++;
-			usleep(1);
+			usleep(10);
 		}
 		wait = 0;
 		counter++;
+		if(counter > maxIterations) // Si on tourne en rond, c'est qu'on est bloqué (Algo pas assez puissant)
+		{
+			if(!sudoku->notSolvable)
+			{
+				printf("Le programme est incapable de résoudre le Sudoku. Seuls des Sudokus faciles et certains de difficulté moyennes peuvent être résolus\n");
+				printf("Ce qui a été trouvé sera tout de même écrit dans le fichier de sortie\n");
+				sudoku->notSolvable = true; // afin d'afficher le message qu'une fois
+			}
+			return NULL;
+		}
 
 	}
 	free(result);
@@ -63,7 +69,7 @@ void searchChoices(unsigned char **result , subGrid* currentSubGrid)
 	{
 		for( int j = 0 ; j < subSquareWidth ; j++)
 		{	
-			// On analyse chaque case du sous carré, retourne la valeur de la case si on checkBlock l'a trouvÃ©
+			// On analyse chaque case du sous carré, retourne la valeur de la case si on checkBlock l'a trouvé
 			tmp = checkBlock( &( currentSubGrid->solution[i][j] ) , 
 							  currentSubGrid , 
 							  currentSubGrid->y * subSquareWidth + i , 
@@ -72,17 +78,13 @@ void searchChoices(unsigned char **result , subGrid* currentSubGrid)
 			if(tmp != 0) // Si on trouve une solution, on la rajoute dans result
 			{
 				(*result)[3*resultPointer] = tmp; // la valeur
-				(*result)[3*resultPointer + 1] = currentSubGrid->y * subSquareWidth + i; // On stocke "l'ordonnÃ©e" de la case
+				(*result)[3*resultPointer + 1] = currentSubGrid->y * subSquareWidth + i; // On stocke "l'ordonnée" de la case
 				(*result)[3*resultPointer + 2] = currentSubGrid->x * subSquareWidth + j; // On stocke "l'abcisse" de la case
 				resultPointer++;
 			}
 		}
 	}
 	(*result)[3*resultPointer] = 0; // On marque la fin de result
-	if(currentSubGrid->numberLaunch == 0) // On compte les solutions au démarrage après le premier calcul
-	{
-		countSolution(currentSubGrid);
-	}
 }
 
 void initChoices( subGrid* currentSubGrid )
@@ -119,6 +121,7 @@ void initChoices( subGrid* currentSubGrid )
 			}
 		}
 	}
+	currentSubGrid->solAtBoot = currentSubGrid->emptyAtBoot * sudoku->blocksPerSquare; //on initialise au max, et on va décrémenter au premier test 
 }
 
 
@@ -139,7 +142,7 @@ void fillGrid(unsigned char* result, threadParameters* tab)
 			k++;
 		}
 
-		pthread_mutex_unlock(&(sudoku->mutex)); /* on attent de pouvoir ouvrir le verrou , le thread d'écriture est lancé avant la lecture */
+		pthread_mutex_unlock(&(sudoku->mutex)); /* on attend de pouvoir ouvrir le verrou , le thread d'écriture est lancé avant la lecture */
 	}
 	else
 	{
@@ -198,6 +201,10 @@ unsigned char getNaiveChoices(Solution *s, subGrid* thread, unsigned char yGloba
 		{
 			s->choices[tmp-1] = 0; // ... On élimine ce choix
 			s->N_sol--; // on décrémente N_sol
+			if(thread->numberLaunch == 0) // Au premier passage en enlève les solutions possible pour les stats
+			{
+				thread->solAtBoot--;
+			}
 		}
 
 		//... Vertical ...
@@ -206,6 +213,10 @@ unsigned char getNaiveChoices(Solution *s, subGrid* thread, unsigned char yGloba
 		{
 			s->choices[tmp-1] = 0;
 			s->N_sol--;
+			if(thread->numberLaunch == 0) // Au premier passage en enlève les solutions possible pour les stats
+			{
+				thread->solAtBoot--;
+			}
 		}
 
 		//... Dans le sous carré
@@ -214,6 +225,10 @@ unsigned char getNaiveChoices(Solution *s, subGrid* thread, unsigned char yGloba
 		{
 			s->choices[tmp-1] = 0;
 			s->N_sol--;
+			if(thread->numberLaunch == 0) // Au premier passage en enlève les solutions possible pour les stats
+			{
+				thread->solAtBoot--;
+			}
 		}
 	}
 
@@ -286,28 +301,4 @@ unsigned char getSingletonChoices(Solution* s, subGrid* thread, unsigned char yG
 	}
 
 	return 0;
-}
-
-
-void countSolution(subGrid* currentSubGrid)
-{
-	int subSquareWidth = sqrt(sudoku->blocksPerSquare);
-	currentSubGrid->solAtBoot = 0;
-
-	for(int i = 0 ; i < subSquareWidth ; i++)
-	{
-		for(int j = 0 ; j < subSquareWidth ; j++)
-		{
-			if(currentSubGrid->solution[i][j].N_sol != 1) // si on connait la case au début, ça ne compte pas
-			{
-				for(int k = 0 ; k < sudoku->blocksPerSquare ; k++) //on regarde le nombre de solution par case
-				{
-					if(currentSubGrid->solution[i][j].choices[k] == 1)
-					{
-						currentSubGrid->solAtBoot++;
-					}
-				}
-			}
-		}
-	}
 }

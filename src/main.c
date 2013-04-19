@@ -3,7 +3,7 @@
  * \brief Programme Multi-Thread de Résolution de Grilles de Sudoku
  * \author Simon Manchel & Woody Rousseau
  * \version 0.1
- * \date 13 avril 2013
+ * \date 19 avril 2013
  */
 
 #include <stdlib.h>
@@ -45,10 +45,6 @@ int main (int argc, char **argv)
 	}
 
 	// Démarrage de l'horloge pour mesurer le temps d'exécution
-	/*clock_t timeStart, timeEnd;
-	timeStart = clock();
-	double time_spent;*/
-	//struct timeval timeStart, timeEnd;
 	struct timeb timeTmp;
 	ftime(&timeTmp);
 	double timeStart, timeEnd;
@@ -87,10 +83,6 @@ int main (int argc, char **argv)
 	deleteSudoku(sudoku); // On désalloue la mémoire du Sudoku
 
 	// Fin de l'horloge pour le temps d'éxécution
-	/*timeEnd = clock();
-	time_spent = (double)(timeEnd - timeStart) / CLOCKS_PER_SEC;*/
-	//gettimeofday( &timeEnd, NULL);
-	//time_spent = ((double) (timeEnd.tv_usec - timeStart.tv_usec)) / 1000000;
 	ftime(&timeTmp);
 	timeEnd = ( (double) timeTmp.time) + ( (double) timeTmp.millitm/1000);
 	time_spent = timeEnd - timeStart;
