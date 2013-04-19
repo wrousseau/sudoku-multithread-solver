@@ -38,7 +38,7 @@ void displayUsage();
 int main (int argc, char **argv)
 {
 	// L'utilisateur demande de l'aide pour l'utilisation du programme
-	if ( ( argc >= 2) && (strcmp ( argv[1] , "help\n" ) == 0) ) 
+	if ( ( argc >= 2) && (strcmp ( argv[1] , "help" ) == 0) ) 
 	{
 		displayUsage();
 		exit ( EXIT_SUCCESS );
