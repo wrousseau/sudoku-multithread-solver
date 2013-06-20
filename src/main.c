@@ -58,7 +58,7 @@ int main (int argc, char **argv)
 	subGrid* threads = NULL;
 
 	// Utilisation des arguments de path d'entrée-sortie (avec cas par défault)
-	char *filePath = "sudoku.in.txt", *resultPath = "sudoku.out.txt";
+	char *filePath = "example/sudoku.in.txt", *resultPath = "example/sudoku.out.txt";
 	switch (argc)
 	{
 		case 1:
